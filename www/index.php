@@ -11,13 +11,17 @@
 
 	<meta name="description" content="">
 	<meta name="author" content="Daniel Dolejška">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.css" rel="stylesheet" integrity="sha256-YR4HrDE479EpYZgeTkQfgVJq08+277UXxMLbi/YP69o=" crossorigin="anonymous" />
+	<link href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" rel="stylesheet" crossorigin="anonymous" />
+	<link href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" rel="stylesheet" crossorigin="anonymous" />
 	<style>
 		body {
 			margin: 0;
 			padding: 0;
+			overflow: hidden;
 		}
 
 		#map {
@@ -45,6 +49,11 @@
 	<div id="map"></div>
 	<div class="leaflet-control-container">
 		<div class="leaflet-top leaflet-right">
+			<div class="leaflet-control">
+				<button class="btn btn-sm btn-primary" onclick="$('#controls-left').toggle('slide', {direction: 'left'}, 400);$('#controls-right').toggle('slide', {direction: 'right'}, 400);">Toggle controls</button>
+			</div>
+		</div>
+		<div class="leaflet-top leaflet-right" id="controls-right" style="padding-top: 40px">
 			<select class="leaflet-control form-control" id="server">
 				<option selected disabled>-- Select Server --</option>
 			</select>
@@ -73,7 +82,7 @@
 				</table>
 			</div>
 		</div>
-		<div class="leaflet-bottom leaflet-left">
+		<div class="leaflet-bottom leaflet-left" id="controls-left">
 			<div class="leaflet-control input-group">
 				<input type="text" title="SteamID64" placeholder="76561198055158908" class=" form-control" id="steamid" disabled>
 				<div class="input-group-append">
@@ -104,6 +113,7 @@
 		</div>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
 	<script type="text/javascript">
 		var steamid64;
 		<?php if (@$_GET['steamid64']): ?>
@@ -207,6 +217,7 @@
 		});
 	</script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.js" integrity="sha256-6BZRSENq3kxI4YYBDqJ23xg0r1GwTHEpvp3okdaIqBw=" crossorigin="anonymous"></script>
+	<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js" crossorigin="anonymous"></script>
 	<script type="text/javascript">
 		//15360x15360m
 		//je to 2048*7,5m
@@ -423,14 +434,17 @@
 			}
 		}
 
+		var clusterGroup = L.markerClusterGroup({
+			/*disableClusteringAtZoom:  ,*/
+			maxClusterRadius: 30,
+		});
+		map.addLayer(clusterGroup);
+
 		var markers = [];
 		var lines = [];
 		function displayEvents() {
 			$("#event-count-filtered").text(visibleEvents.length);
-
-			for (var i = 0; i < markers.length; i++) {
-				map.removeLayer(markers[i]);
-			}
+			clusterGroup.clearLayers();
 			markers = [];
 
 			for (var i = 0; i < lines.length; i++) {
@@ -496,7 +510,8 @@
 
 				marker.bindTooltip(tooltipContent);
 				marker.bindPopup(popupContent);
-				marker.addTo(map);
+				clusterGroup.addLayer(marker);
+				//marker.addTo(clusterGroup);
 
 				markers.push(marker);
 			}
