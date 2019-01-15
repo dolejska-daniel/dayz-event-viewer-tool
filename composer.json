@@ -1,0 +1,16 @@
+{
+    "name": "dolejska-daniel/dayz-sa.cz_map",
+    "description": "",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Daniel Dolejška",
+            "email": "dolejskad@gmail.com"
+        }
+    ],
+    "require": {
+        "nette/neon": "^2.4",
+        "nette/utils": "^2.5"
+    },
+    "minimum-stability": "stable"
+}
