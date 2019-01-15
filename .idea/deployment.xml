@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="Kaidou Ren">
+  <component name="PublishConfigData" autoUpload="Always" serverName="Kaidou Ren" uploadOnCheckin="48a967ea-46af-4866-b445-aa127279db81">
     <serverData>
       <paths name="FIT :: Eva SFTP">
         <serverdata>
@@ -45,6 +45,7 @@
         </serverdata>
       </paths>
     </serverData>
+    <option name="myUploadOnCheckinName" value="Kaidou Ren" />
     <option name="myAutoUpload" value="ALWAYS" />
   </component>
 </project>

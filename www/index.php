@@ -174,6 +174,13 @@
 			var $this = $( this );
 			if (!$this.val())
 				$this.val(0);
+			$("#time-to option").each(function (key, opt) {
+				var $opt = $(opt);
+				if (parseInt($opt.val()) <= parseInt($this.val()))
+					$opt.attr("disabled", "disabled");
+				else
+					$opt.removeAttr("disabled");
+			});
 			setUrlParam('time_from', $this.val());
 			filterEvents();
 			displayEvents();
@@ -187,6 +194,13 @@
 			var $this = $( this );
 			if (!$this.val())
 				$this.val(2 * 24 * 3600);
+			$("#time-from option").each(function (key, opt) {
+				var $opt = $(opt);
+				if (parseInt($opt.val()) >= parseInt($this.val()))
+					$opt.attr("disabled", "disabled");
+				else
+					$opt.removeAttr("disabled");
+			});
 			setUrlParam('time_to', $this.val());
 			filterEvents();
 			displayEvents();
