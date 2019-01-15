@@ -7,8 +7,18 @@ regex:
 	log_entry: '/(?<time>[0-9\:]{8}) \| DAYZ-SA --> (?<event>[A-Z\_]+):(?<attrs>.+)/'
 	# Log entry attributes
 	attribute_entry: '/(\s(?<keys>[a-z0-9]+)=\"(?<values>.+?)\")/'
-	# Special attribute regexes
+	# Attribute group delimiter string. Converts group1__group2__key to
+	# group1:
+	#   group2:
+	#     key: value
+	attribute_group_delimiter: '__'
+	# Special attribute regexes. System will use all non-numeric keys found in matches.
 	# {key}: {regex}
 	attributes:
 		# position="<7743.427246, -118.704254, 12632.520508>"
+		#	to
+		# position:
+		#   x: {value}
+		#   y: {value}
+		#   z: {value}
 		position: '<(?<x>[\-0-9.]+), (?<y>[\-0-9.]+), (?<z>[\-0-9.]+)>'

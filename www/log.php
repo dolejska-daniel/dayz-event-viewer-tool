@@ -50,7 +50,7 @@ foreach (array_keys($matches[0]) as $entry_id)
 
 	foreach ($attrs as $key => $value)
 	{
-		$key_array = explode('__', $key);
+		$key_array = explode($service->regex->attribute_group_delimiter, $key);
 		if (count($key_array) > 1)
 		{
 			$key_real = array_splice($key_array, count($key_array) - 1)[0];
