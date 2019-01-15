@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . "/../bootstrap.php";
+
 ?>
 <!doctype html>
 
@@ -50,7 +52,7 @@
 	<div class="leaflet-control-container">
 		<div class="leaflet-top leaflet-right">
 			<div class="leaflet-control">
-				<button class="btn btn-sm btn-primary" onclick="$('#controls-left').toggle('slide', {direction: 'left'}, 400);$('#controls-right').toggle('slide', {direction: 'right'}, 400);">Toggle controls</button>
+				<button class="btn btn-sm btn-primary" onclick="$('#controls-left').toggle('slide', {direction: 'left'}, 300);$('#controls-right').toggle('slide', {direction: 'right'}, 300);">Toggle controls</button>
 			</div>
 		</div>
 		<div class="leaflet-top leaflet-right" id="controls-right" style="padding-top: 40px">
@@ -109,6 +111,12 @@
 					<input type="checkbox" class="custom-control-input" id="connectKillEvents" value="1" onchange="displayEvents(); setUrlParam('connect_kill_events', $('#connectKillEvents:checked').val());" <?php if (@$_GET['connect_kill_events'] == 1): ?>checked<?php endif; ?> disabled>
 					<label class="custom-control-label" for="connectKillEvents">Visually connect kill events</label>
 				</div>
+			</div>
+			<div class="leaflet-control leaflet-control-custom rounded">
+				<select style="height: 140px" class="pl-1 pr-2 form-control" id="event-types" multiple>
+					<option disabled>Select log first.</option>
+				</select>
+				<button type="button" class="btn btn-sm btn-danger w-100 mt-1" onclick="$('#event-types option').prop('selected', true);$('#event-types').change();">Reset</button>
 			</div>
 		</div>
 	</div>
@@ -212,6 +220,18 @@
 					$opt.removeAttr("disabled");
 			});
 			setUrlParam('time_to', $this.val());
+			filterEvents();
+			displayEvents();
+		});
+
+		var event_types;
+		<?php if (@$_GET['event_types']): ?>
+		event_types = JSON.parse(atob("<?=$_GET['event_types']?>"));
+		<?php endif; ?>
+		$("#event-types").on('change', function () {
+			var $this = $( this );
+			event_types = $this.val();
+			setUrlParam('event_types', btoa(JSON.stringify($this.val())));
 			filterEvents();
 			displayEvents();
 		});
@@ -398,8 +418,10 @@
 		// https://leafletjs.com/reference-1.4.0.html#control-layers
 		var events = [];
 		var visibleEvents = [];
+		var eventTypes = [];
 
 		function loadEvents() {
+			eventTypes = [];
 			$.get("log.php", { file: log }).done(function (data) {
 				var eventsData = JSON.parse(data);
 				events = eventsData.events;
@@ -408,6 +430,23 @@
 				$( "#time-from" ).removeAttr("disabled");
 				$( "#time-to" ).removeAttr("disabled");
 				$( "#steamid" ).removeAttr("disabled");
+
+				for (var i = 0; i < events.length; i++) {
+					var e = events[i];
+					eventTypes[e.event_type] = e.event_type;
+				}
+
+				var $eventTypes = $("#event-types").html("");
+				eventTypes.sort();
+				for (var eventType in eventTypes)
+				{
+					if (!eventTypes.hasOwnProperty(eventType))
+						continue;
+					$eventTypes.append($("<option selected>").attr("value", eventType).text(eventTypes[eventType]));
+				}
+
+				if (event_types)
+					$eventTypes.val(event_types).change();
 
 				generateTimeFilter(eventsData.time.from_numeric, eventsData.time.to_numeric);
 				filterEvents();
@@ -420,14 +459,18 @@
 			for (var i = 0; i < events.length; i++) {
 				var e = events[i];
 
-				// SteamID filter
-				if (steamid64 && e.event_data.steamid64 != steamid64)
+				// Event type filters
+				if (event_types && event_types.indexOf(e.event_type) === -1)
 					continue;
 
+				// Time filters
 				if (e.event_time_numeric < $("#time-from").val())
 					continue;
-
 				if (e.event_time_numeric > $("#time-to").val())
+					continue;
+
+				// SteamID filter
+				if (steamid64 && e.event_data.steamid64 != steamid64)
 					continue;
 
 				visibleEvents.push(e);
