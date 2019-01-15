@@ -327,6 +327,11 @@
 			];
 		}
 
+		function intsToTime(ints)
+		{
+			return ints[0] * 3600 + ints[1] * 60 + ints[2];
+		}
+
 		function timeToString(secs)
 		{
 			var x = timeToInts(secs);
@@ -338,6 +343,18 @@
 			if (s.length === 1)
 				s = "0" + s;
 			return H + ":" + i + ":" + s;
+		}
+
+		function setTimeFilter(from, min_diff) {
+			var low = from - min_diff * 60;
+			low = Math.floor(low / 300) * 300;
+
+			var high = from + min_diff * 60;
+			high = Math.ceil(high / 300) * 300;
+
+			// TODO: out of bounds?
+			$( "#time-from" ).val(low || 0).change();
+			$( "#time-to" ).val(high || 2 * 24 * 3600).change();
 		}
 
 		function generateTimeFilter(from, to) {
@@ -435,11 +452,11 @@
 				var popupContent = "";
 
 				tooltipContent = e.event_time + ": <b>" + e.event_data.name + "</b>";
-				popupContent = "<h6>" + e.event_type + " <small>" + e.event_time + "<a href='javascript:$(\"#steamid\").val(\"" + e.event_data.steamid64  + "\").keyup();'>&plusmn;15m</a></small></h6>";
+				popupContent = "<h6>" + e.event_type + " <small>" + e.event_time + "<a href='javascript:setTimeFilter(" + e.event_time_numeric + ", 15);'>&plusmn;15m</a></small></h6>";
 				popupContent += "<b>" + e.event_data.name + "</b> (" + e.event_data.steamid64 + " <small><a href='javascript:$(\"#steamid\").val(\"" + e.event_data.steamid64  + "\").keyup();'>filtr</a></small>)";
 				popupContent += "<br><pre class='mt-2'>" + JSON.stringify(e.event_data, null, 2) + "</pre>";
 
-				if (e.event_type === "KILLED_BY_PLAYER" || e.event_type === "KILLED_BY_ZOMBIE") {
+				if (e.event_type === "KILLED_BY_PLAYER" || e.event_type === "KILLED_BY_ZOMBIE" || e.event_type === "KILLED_BY_CAR") {
 					pin = pinRed;
 				} else if (e.event_type === "CONNECTED") {
 					pin = pinGreen;
@@ -461,6 +478,8 @@
 					{
 						if (e.event_type === "DISCONNECT"
 							|| e.event_type === "KILLED_BY_PLAYER"
+							|| e.event_type === "KILLED_BY_ZOMBIE"
+							|| e.event_type === "KILLED_BY_CAR"
 							|| e.event_type === "SUICIDE")
 						{
 							paths[e.event_data.steamid64].id++;
