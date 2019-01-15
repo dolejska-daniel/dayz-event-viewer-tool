@@ -1,0 +1,14 @@
+#
+# Service configuration file
+#
+
+regex:
+	# Single log entry
+	log_entry: '/(?<time>[0-9\:]{8}) \| DAYZ-SA --> (?<event>[A-Z\_]+):(?<attrs>.+)/'
+	# Log entry attributes
+	attribute_entry: '/(\s(?<keys>[a-z0-9]+)=\"(?<values>.+?)\")/'
+	# Special attribute regexes
+	# {key}: {regex}
+	attributes:
+		# position="<7743.427246, -118.704254, 12632.520508>"
+		position: '<(?<x>[\-0-9.]+), (?<y>[\-0-9.]+), (?<z>[\-0-9.]+)>'
