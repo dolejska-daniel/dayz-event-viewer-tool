@@ -5,6 +5,13 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/nette/neon" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/nette/utils" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/psr/log" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/sabre/dav" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/sabre/event" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/sabre/http" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/sabre/uri" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/sabre/vobject" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/sabre/xml" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
