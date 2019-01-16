@@ -59,12 +59,17 @@ require_once __DIR__ . "/../bootstrap.php";
 			<select class="leaflet-control form-control" id="server">
 				<option selected disabled>-- Select Server --</option>
 			</select>
-			<select class="leaflet-control form-control" id="log" disabled>
-				<option selected disabled>-- Select Log --</option>
-				<optgroup label="DONOR" id="log-group">
-					<option>DayZServer_x64_2019_01_11_200416631.ADM</option>
-				</optgroup>
-			</select>
+			<div class="leaflet-control input-group">
+				<select class="form-control" id="log" disabled>
+					<option selected disabled>-- Select Log --</option>
+					<optgroup label="DONOR" id="log-group">
+						<option>DayZServer_x64_2019_01_11_200416631.ADM</option>
+					</optgroup>
+				</select>
+				<div class="input-group-append">
+					<button type="button" class="btn btn-primary" onclick="$('#log').change();">Reload</button>
+				</div>
+			</div>
 			<div class="leaflet-control leaflet-control-custom rounded">
 				<table>
 					<tbody>
@@ -313,7 +318,7 @@ require_once __DIR__ . "/../bootstrap.php";
 		}).addTo(map);*/
 
 		var viewTop = L.tileLayer('https://maps.izurvive.com/maps/CH-Top/1.11.7/tiles/{z}/{x}/{y}.png', {
-			attribution: '<a href="https://www.izurvive.com/">iZurvive</a>, &copy; 2019 <a href="https://dayz-sa.cz/">DayZ-SA.cz</a>, Daniel Dolejška',
+			attribution: 'Map data &copy; <a href="https://www.izurvive.com/">iZurvive</a>; Event processor &copy; <a href="https://dayz-sa.cz/">DayZ-SA.cz</a>, Daniel Dolejška',
 			bounds: [[0, 0], [256, 256]],
 			reuseTiles: true,
 			tms: true,
@@ -328,7 +333,7 @@ require_once __DIR__ . "/../bootstrap.php";
 		};
 
 		var viewSatellite = L.tileLayer('https://maps.izurvive.com/maps/CH-Sat/1.11.7/tiles/{z}/{x}/{y}.png', {
-			attribution: '<a href="https://www.izurvive.com/">iZurvive</a>, &copy; 2019 <a href="https://dayz-sa.cz/">DayZ-SA.cz</a>, Daniel Dolejška',
+			attribution: 'Map data &copy; <a href="https://www.izurvive.com/">iZurvive</a>; Event processor &copy; <a href="https://dayz-sa.cz/">DayZ-SA.cz</a>, Daniel Dolejška',
 			bounds: [[0, 0], [256, 256]],
 			reuseTiles: true,
 			tms: true,
@@ -343,8 +348,8 @@ require_once __DIR__ . "/../bootstrap.php";
 		};
 
 		var views = {
-			"Satellite": viewSatellite,
 			"Top": viewTop,
+			"Satellite": viewSatellite,
 		};
 
 		var map = L.map('map', {
@@ -353,7 +358,6 @@ require_once __DIR__ . "/../bootstrap.php";
 			minZoom: 1,
 			maxZoom: 12,
 			zoom: 2,
-			layers: [ viewTop, viewSatellite ],
 			/*
 			zoomSnap: 0.25,
 			zoomDelta: 0.25,
@@ -362,6 +366,7 @@ require_once __DIR__ . "/../bootstrap.php";
 			*/
 			crs: L.CRS.Simple,
 		});
+		viewTop.addTo(map);
 		L.control.layers(views, null, {
 			position: 'topleft'
 		}).addTo(map);
