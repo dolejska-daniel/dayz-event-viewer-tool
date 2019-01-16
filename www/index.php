@@ -99,7 +99,7 @@ require_once __DIR__ . "/../bootstrap.php";
 					<option selected>Select log first.</option>
 				</select>
 				<div class="input-group-append">
-					<button type="button" class="btn btn-danger" onclick="$('#time-from').val('').change();$('#time-to').val('').change();">Reset</button>
+					<button type="button" class="btn btn-danger" onclick="time_filter__reset();">Reset</button>
 				</div>
 			</div>
 			<div class="leaflet-control leaflet-control-custom rounded">
@@ -116,7 +116,7 @@ require_once __DIR__ . "/../bootstrap.php";
 				<select style="height: 140px" class="pl-1 pr-2 form-control" id="event-types" multiple>
 					<option disabled>Select log first.</option>
 				</select>
-				<button type="button" class="btn btn-sm btn-danger w-100 mt-1" onclick="$('#event-types option').prop('selected', true);$('#event-types').change();">Reset</button>
+				<button type="button" class="btn btn-sm btn-danger w-100 mt-1" onclick="event_types__reset();">Reset</button>
 			</div>
 		</div>
 	</div>
@@ -162,8 +162,13 @@ require_once __DIR__ . "/../bootstrap.php";
 					$group.append($("<option>").attr("value", fileid).text(file));
 				}
 				var $log = $( "#log" ).removeAttr("disabled");
-				if (log)
-					$log.val(log).change();
+				$log.val(log);
+				if ($log.val() == null)
+				{
+					// Select current log if no other log has been selected
+					$log.val("DayZServer_x64.ADM");
+				}
+				$log.change();
 			});
 		});
 
@@ -223,6 +228,10 @@ require_once __DIR__ . "/../bootstrap.php";
 			filterEvents();
 			displayEvents();
 		});
+		function time_filter__reset() {
+			$('#time-from').val('').change();
+			$('#time-to').val('').change();
+		}
 
 		var event_types;
 		<?php if (@$_GET['event_types']): ?>
@@ -235,6 +244,12 @@ require_once __DIR__ . "/../bootstrap.php";
 			filterEvents();
 			displayEvents();
 		});
+		function event_types__reset() {
+			$('#event-types option').prop('selected', true);
+			$('#event-types').change();
+			setUrlParam('event_types', null);
+			event_types = null;
+		}
 	</script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.js" integrity="sha256-6BZRSENq3kxI4YYBDqJ23xg0r1GwTHEpvp3okdaIqBw=" crossorigin="anonymous"></script>
 	<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js" crossorigin="anonymous"></script>
@@ -554,19 +569,17 @@ require_once __DIR__ . "/../bootstrap.php";
 							}
 						};
 					}
-					else
-					{
-						if (e.event_type === "DISCONNECT"
-							|| e.event_type === "KILLED_BY_PLAYER"
-							|| e.event_type === "KILLED_BY_ZOMBIE"
-							|| e.event_type === "KILLED_BY_CAR"
-							|| e.event_type === "SUICIDE")
-						{
-							paths[e.event_data.steamid64].id++;
-							paths[e.event_data.steamid64].paths[paths[e.event_data.steamid64].id] = [];
-						}
-					}
 					paths[e.event_data.steamid64].paths[paths[e.event_data.steamid64].id].push(getLatLng(e.event_data.position.x, e.event_data.position.z, e.event_data.position.y));
+
+					if (e.event_type === "DISCONNECT"
+						|| e.event_type === "KILLED_BY_PLAYER"
+						|| e.event_type === "KILLED_BY_ZOMBIE"
+						|| e.event_type === "KILLED_BY_CAR"
+						|| e.event_type === "SUICIDE")
+					{
+						paths[e.event_data.steamid64].id++;
+						paths[e.event_data.steamid64].paths[paths[e.event_data.steamid64].id] = [];
+					}
 				}
 
 				var marker = L.marker(getLatLng(e.event_data.position.x, e.event_data.position.z, e.event_data.position.y), {
@@ -607,7 +620,10 @@ require_once __DIR__ . "/../bootstrap.php";
 
 		function setUrlParam(key, value) {
 			const searchParams = new URLSearchParams(window.location.search);
-			searchParams.set(key, value);
+			if (value == null)
+				searchParams.delete(key);
+			else
+				searchParams.set(key, value);
 			window.history.pushState(null, document.title, "?" + searchParams.toString());
 		}
 

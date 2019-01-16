@@ -33,7 +33,9 @@ if ($serverConfig->webdav->enabled)
 			'{DAV:}displayname',
 			//'{DAV:}getcontentlength',
 		), 1);
+		krsort($files);
 
+		$data['files']["DayZServer_x64.ADM"] = "Current";
 		foreach ($files as $filepath => $fileinfo)
 		{
 			if (strpos($filepath, '.ADM') === false)
