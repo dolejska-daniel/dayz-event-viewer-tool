@@ -89,7 +89,7 @@ require_once __DIR__ . "/../bootstrap.php";
 					</tbody>
 				</table>
 			</div>
-			<div class="leaflet-control leaflet-control-custom rounded p-0" style="font-size: 12px"><pre class="p-1 m-0" id="status-bar" style="display: none;"></pre></div>
+			<div class="leaflet-control leaflet-control-custom rounded p-0" style="font-size: 12px"><pre class="p-1 m-0 text-right" id="status-bar" style="display: none;"></pre></div>
 		</div>
 		<div class="leaflet-bottom leaflet-left" id="controls-left">
 			<div class="leaflet-control input-group">
@@ -288,42 +288,42 @@ require_once __DIR__ . "/../bootstrap.php";
 		var mapWidth = 256,
 			mapHeight = 256;
 
+		var eventSettings = JSON.parse('<?=json_encode($service->events)?>');
+
 		// https://github.com/pointhi/leaflet-color-markers
-		var pinBlue = new L.Icon({
+		var pinDefaults = {
 			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
 			shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
 			iconSize: [25, 41],
 			iconAnchor: [12, 41],
 			popupAnchor: [1, -34],
 			shadowSize: [41, 41]
-		});
-
-		var pinRed = new L.Icon({
+		};
+		var pins = {};
+		pins['blue'] = new L.Icon(Object.assign(pinDefaults, {
+			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+			shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+		}));
+		pins['red'] = new L.Icon(Object.assign(pinDefaults, {
 			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
 			shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-			iconSize: [25, 41],
-			iconAnchor: [12, 41],
-			popupAnchor: [1, -34],
-			shadowSize: [41, 41]
-		});
-
-		var pinGreen = new L.Icon({
+		}));
+		pins['green'] = new L.Icon(Object.assign(pinDefaults, {
 			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
 			shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-			iconSize: [25, 41],
-			iconAnchor: [12, 41],
-			popupAnchor: [1, -34],
-			shadowSize: [41, 41]
-		});
-
-		var pinOrange = new L.Icon({
+		}));
+		pins['orange'] = new L.Icon(Object.assign(pinDefaults, {
 			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
 			shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-			iconSize: [25, 41],
-			iconAnchor: [12, 41],
-			popupAnchor: [1, -34],
-			shadowSize: [41, 41]
-		});
+		}));
+		pins['violet'] = new L.Icon(Object.assign(pinDefaults, {
+			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png',
+			shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+		}));
+		pins['grey'] = new L.Icon(Object.assign(pinDefaults, {
+			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png',
+			shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+		}));
 
 		/*
 		L.tileLayer('map/{z}/{x}/{y}.png', {
@@ -567,7 +567,7 @@ require_once __DIR__ . "/../bootstrap.php";
 					|| e.event_data.position.z == null)
 					continue;*/
 
-				var pin = pinBlue;
+				var pin = pins['blue'];
 				var tooltipContent = "";
 				var popupContent = "";
 
@@ -576,12 +576,10 @@ require_once __DIR__ . "/../bootstrap.php";
 				popupContent += "<b>" + e.event_data.name + "</b> (<a href=\"https://steamcommunity.com/profiles/" + e.event_data.steamid64 + "/\" target=\"_blank\">Steam profile</a>, <small><a href='javascript:$(\"#steamid\").val(\"" + e.event_data.steamid64  + "\").keyup();'>filtr</a></small>)";
 				popupContent += "<br><pre class='mt-2'>" + JSON.stringify(e.event_data, null, 2) + "</pre>";
 
-				if (e.event_type === "KILLED_BY_PLAYER" || e.event_type === "KILLED_BY_ZOMBIE" || e.event_type === "KILLED_BY_CAR") {
-					pin = pinRed;
-				} else if (e.event_type === "CONNECTED") {
-					pin = pinGreen;
-				} else if (e.event_type === "DISCONNECTED") {
-					pin = pinOrange;
+				var settings = eventSettings[e.event_type];
+				if (settings)
+				{
+					pin = pins[settings.marker]
 				}
 
 				if ($("#connectEvents:checked").val()) {
@@ -596,14 +594,13 @@ require_once __DIR__ . "/../bootstrap.php";
 					}
 					paths[e.event_data.steamid64].paths[paths[e.event_data.steamid64].id].push(getLatLng(e.event_data.position.x, e.event_data.position.z, e.event_data.position.y));
 
-					if (e.event_type === "DISCONNECT"
-						|| e.event_type === "KILLED_BY_PLAYER"
-						|| e.event_type === "KILLED_BY_ZOMBIE"
-						|| e.event_type === "KILLED_BY_CAR"
-						|| e.event_type === "SUICIDE")
+					if (settings)
 					{
-						paths[e.event_data.steamid64].id++;
-						paths[e.event_data.steamid64].paths[paths[e.event_data.steamid64].id] = [];
+						if (settings.terminatesSequence)
+						{
+							paths[e.event_data.steamid64].id++;
+							paths[e.event_data.steamid64].paths[paths[e.event_data.steamid64].id] = [];
+						}
 					}
 				}
 

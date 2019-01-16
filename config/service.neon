@@ -7,7 +7,7 @@ regex:
 	log_entry: '/(?<time>[0-9\:]{8}) \| DAYZ-SA --> (?<event>[A-Z\_]+):(?<attrs>.+)/'
 	# Log entry attributes
 	attribute_entry: '/(\s(?<keys>[a-z0-9]+)=\"(?<values>.+?)\")/'
-	# Attribute group delimiter string. Converts group1__group2__key to
+	# Attribute group delimiter string. Converts 'group1__group2__key' to
 	# group1:
 	#   group2:
 	#     key: value
@@ -22,3 +22,97 @@ regex:
 		#   y: {value}
 		#   z: {value}
 		position: '<(?<x>[\-0-9.]+), (?<y>[\-0-9.]+), (?<z>[\-0-9.]+)>'
+
+events:
+	KILLED_BY_PLAYER:
+		# Marker type shown on map
+		marker: red
+		# When visually connecting events, this event will cause existing sequence to end.
+		terminatesSequence: yes
+	KILLED_BY_CAR:
+		marker: red
+		terminatesSequence: yes
+	KILLED_BY_LANDMINETRAP:
+		marker: red
+		terminatesSequence: yes
+	KILLED_BY_ZOMBIE:
+		marker: red
+		terminatesSequence: yes
+	SUICIDE:
+		marker: blue
+		terminatesSequence: yes
+	TRAP_ACTIVATED:
+		marker: violet
+		terminatesSequence: no
+	PLACED:
+		marker: violet
+		terminatesSequence: no
+	VEHICLE_ENTER:
+		marker: violet
+		terminatesSequence: no
+	VEHICLE_LEFT:
+		marker: violet
+		terminatesSequence: no
+	VEHICLE_DRIVER_ENTER:
+		marker: violet
+		terminatesSequence: no
+	VEHICLE_DRIVER_LEFT:
+		marker: violet
+		terminatesSequence: no
+	PLAYER_POSITION:
+		marker: grey
+		terminatesSequence: no
+	CONNECTED:
+		marker: green
+		terminatesSequence: no
+	DISCONNECTED:
+		marker: orange
+		terminatesSequence: yes
+
+limits:
+	filters:
+		# SteamID filter shown?
+		steamid: yes
+		# Time filters shown?
+		time: yes
+		# Event type filters shown?
+		type: yes
+	extensions:
+		# Extended visual options shown?
+		visuals: yes
+		# Server selection shown?
+		server: yes
+		# Log selection shown?
+		log: yes
+		# Event statistics shown?
+		stats: yes
+	events:
+		# List of event types allowed to be displayed
+		whitelist:
+		#	- example
+		# List of event types forbidden from being displayed
+		blacklist:
+		#	- example
+
+behaviour:
+	# selectable, preselected, list, group, all
+	server: selectable
+	# if all: null
+	# if selectable: null
+	# if preselected: {SERVER_ID}
+	# if list:
+	# 	- {SERVER_ID}
+	# 	- {SERVER_ID}
+	# if group: {GROUP_NAME}
+	serverSelection: null
+	# selectable, preselected, list, today, lastXHours, all
+	logs: selectable
+	# if all: null
+	# if selectable: null
+	# if preselected: {LOGFILE_REL_PATH}
+	# if list:
+	# 	- {LOGFILE_REL_PATH}
+	# 	- {LOGFILE_REL_PATH}
+	# if today: null
+	# if lastXHours: {HOURS_FROM_NOW}
+	logsSelection: null
