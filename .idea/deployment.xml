@@ -1,39 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="Kaidou Ren" uploadOnCheckin="48a967ea-46af-4866-b445-aa127279db81">
+  <component name="PublishConfigData" autoUpload="Always" uploadOnCheckin="48a967ea-46af-4866-b445-aa127279db81">
     <serverData>
-      <paths name="FIT :: Eva SFTP">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="FIT :: Merlin SFTP">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="Kaidou Ren">
+      <paths name="Kaidou-Ren">
         <serverdata>
           <mappings>
             <mapping deploy="/deploy.dolejska.me/dayzsacz/map" local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="Tykadla.cz (NEW)">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="Tykadla.test (OLD)">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>

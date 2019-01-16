@@ -11,7 +11,8 @@
     "require": {
         "nette/neon": "^2.4",
         "nette/utils": "^2.5",
-        "sabre/dav": "^3.2"
+        "sabre/dav": "^3.2",
+	    "ext-curl": "*"
     },
     "minimum-stability": "stable"
 }

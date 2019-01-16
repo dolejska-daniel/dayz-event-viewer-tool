@@ -288,28 +288,6 @@ require_once __DIR__ . "/../bootstrap.php";
 			shadowSize: [41, 41]
 		});
 
-		var map = L.map('map', {
-			center: [128, 128],
-			preferCanvas: true,
-			minZoom: 1,
-			maxZoom: 12,
-			zoom: 2,
-			/*
-			zoomSnap: 0.25,
-			zoomDelta: 0.25,
-			wheelDebounceTime: 0,
-			wheelPxPerZoomLevel: 1000,
-			*/
-			crs: L.CRS.Simple,
-		});
-		//map.setMaxBounds(map.getBounds());
-
-		//  Right click
-		map.on("contextmenu", function (event) {
-			console.log("Coordinates: %s => %o, %o", event.latlng.toString(), getXY(event.latlng), getLatLng(getXY(event.latlng)[0], getXY(event.latlng)[1]));
-			//L.marker(event.latlng).addTo(map);
-		});
-
 		/*
 		L.tileLayer('map/{z}/{x}/{y}.png', {
 			attribution: '&copy; 2019 <a href="https://dayz-sa.cz/">DayZ-SA.cz</a>, Daniel Dolejška',
@@ -319,7 +297,7 @@ require_once __DIR__ . "/../bootstrap.php";
 			noWrap: true,
 		}).addTo(map);*/
 
-		var tileLayer = L.tileLayer('https://maps.izurvive.com/maps/CH-Top/1.11.7/tiles/{z}/{x}/{y}.png', {
+		var viewTop = L.tileLayer('https://maps.izurvive.com/maps/CH-Top/1.11.7/tiles/{z}/{x}/{y}.png', {
 			attribution: '<a href="https://www.izurvive.com/">iZurvive</a>, &copy; 2019 <a href="https://dayz-sa.cz/">DayZ-SA.cz</a>, Daniel Dolejška',
 			bounds: [[0, 0], [256, 256]],
 			reuseTiles: true,
@@ -328,14 +306,57 @@ require_once __DIR__ . "/../bootstrap.php";
 			minNativeZoom: 1,
 			maxNativeZoom: 7,
 		});
-
-		tileLayer.getTileUrl = function (coords) {
+		viewTop.getTileUrl = function (coords) {
 			//coords.x = coords.x;
 			coords.y = -coords.y - 1;
-			return L.TileLayer.prototype.getTileUrl.bind(tileLayer)(coords);
+			return L.TileLayer.prototype.getTileUrl.bind(viewTop)(coords);
 		};
 
-		tileLayer.addTo(map);
+		var viewSatellite = L.tileLayer('https://maps.izurvive.com/maps/CH-Sat/1.11.7/tiles/{z}/{x}/{y}.png', {
+			attribution: '<a href="https://www.izurvive.com/">iZurvive</a>, &copy; 2019 <a href="https://dayz-sa.cz/">DayZ-SA.cz</a>, Daniel Dolejška',
+			bounds: [[0, 0], [256, 256]],
+			reuseTiles: true,
+			tms: true,
+			noWrap: true,
+			minNativeZoom: 1,
+			maxNativeZoom: 7,
+		});
+		viewSatellite.getTileUrl = function (coords) {
+			//coords.x = coords.x;
+			coords.y = -coords.y - 1;
+			return L.TileLayer.prototype.getTileUrl.bind(viewSatellite)(coords);
+		};
+
+		var views = {
+			"Satellite": viewSatellite,
+			"Top": viewTop,
+		};
+
+		var map = L.map('map', {
+			center: [128, 128],
+			preferCanvas: true,
+			minZoom: 1,
+			maxZoom: 12,
+			zoom: 2,
+			layers: [ viewTop, viewSatellite ],
+			/*
+			zoomSnap: 0.25,
+			zoomDelta: 0.25,
+			wheelDebounceTime: 0,
+			wheelPxPerZoomLevel: 1000,
+			*/
+			crs: L.CRS.Simple,
+		});
+		L.control.layers(views, null, {
+			position: 'topleft'
+		}).addTo(map);
+		//map.setMaxBounds(map.getBounds());
+
+		//  Right click
+		map.on("contextmenu", function (event) {
+			console.log("Coordinates: %s => %o, %o", event.latlng.toString(), getXY(event.latlng), getLatLng(getXY(event.latlng)[0], getXY(event.latlng)[1]));
+			//L.marker(event.latlng).addTo(map);
+		});
 
 		function getXY(latLng) {
 			var x = latLng.lng;
@@ -424,7 +445,7 @@ require_once __DIR__ . "/../bootstrap.php";
 
 		function loadEvents() {
 			eventTypes = [];
-			$.get("log.php", { file: log }).done(function (data) {
+			$.get("log.php", { server: server, file: log }).done(function (data) {
 				var eventsData = JSON.parse(data);
 				events = eventsData.events;
 				$( "#event-count" ).text(events.length);

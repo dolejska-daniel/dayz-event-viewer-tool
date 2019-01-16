@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="6b0ef615-f252-4888-88e0-7c0287c19f1f" name="Kaidou-Ren" url="http://kaidou-ren.srv.dolejska.me">
+        <fileTransfer host="kaidou-ren.srv.dolejska.me" port="69" privateKey="C:\Users\kronn\.ssh\id_rsa.ppk" rootFolder="/var/www" accessType="SFTP" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="69" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
