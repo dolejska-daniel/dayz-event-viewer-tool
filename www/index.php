@@ -290,10 +290,10 @@ require_once __DIR__ . "/../bootstrap.php";
 
 		var map = L.map('map', {
 			center: [128, 128],
-			zoom: 2,
 			preferCanvas: true,
 			minZoom: 1,
-			maxZoom: 7,
+			maxZoom: 12,
+			zoom: 2,
 			/*
 			zoomSnap: 0.25,
 			zoomDelta: 0.25,
@@ -325,6 +325,8 @@ require_once __DIR__ . "/../bootstrap.php";
 			reuseTiles: true,
 			tms: true,
 			noWrap: true,
+			minNativeZoom: 1,
+			maxNativeZoom: 7,
 		});
 
 		tileLayer.getTileUrl = function (coords) {
