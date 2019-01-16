@@ -15,6 +15,7 @@ require_once __DIR__ . "/../bootstrap.php";
 	<meta name="author" content="Daniel Dolejška">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
 	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.css" rel="stylesheet" integrity="sha256-YR4HrDE479EpYZgeTkQfgVJq08+277UXxMLbi/YP69o=" crossorigin="anonymous" />
 	<link href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" rel="stylesheet" crossorigin="anonymous" />
@@ -52,7 +53,7 @@ require_once __DIR__ . "/../bootstrap.php";
 	<div class="leaflet-control-container">
 		<div class="leaflet-top leaflet-right">
 			<div class="leaflet-control">
-				<button class="btn btn-sm btn-primary" onclick="$('#controls-left').toggle('slide', {direction: 'left'}, 300);$('#controls-right').toggle('slide', {direction: 'right'}, 300);">Toggle controls</button>
+				<button class="btn btn-sm btn-primary" onclick="$('#controls-left').toggle('slide', {direction: 'left'}, 300);$('#controls-right').toggle('slide', {direction: 'right'}, 300);"><i class="fa fa-bars"></i></button>
 			</div>
 		</div>
 		<div class="leaflet-top leaflet-right" id="controls-right" style="padding-top: 40px">
@@ -67,7 +68,7 @@ require_once __DIR__ . "/../bootstrap.php";
 					</optgroup>
 				</select>
 				<div class="input-group-append">
-					<button type="button" class="btn btn-primary" onclick="$('#log').change();">Reload</button>
+					<button type="button" class="btn btn-primary" onclick="$('#log').change();"><i class="fa fa-sync"></i></button>
 				</div>
 			</div>
 			<div class="leaflet-control leaflet-control-custom rounded">
@@ -88,12 +89,13 @@ require_once __DIR__ . "/../bootstrap.php";
 					</tbody>
 				</table>
 			</div>
+			<div class="leaflet-control leaflet-control-custom rounded p-0" style="font-size: 12px"><pre class="p-1 m-0" id="status-bar" style="display: none;"></pre></div>
 		</div>
 		<div class="leaflet-bottom leaflet-left" id="controls-left">
 			<div class="leaflet-control input-group">
 				<input type="text" title="SteamID64" placeholder="76561198055158908" class=" form-control" id="steamid" disabled>
 				<div class="input-group-append">
-					<button type="button" class="btn btn-danger" onclick="$('#steamid').val('').keyup();">Reset</button>
+					<button type="button" class="btn btn-danger" onclick="$('#steamid').val('').keyup();"><i class="fa fa-times"></i></button>
 				</div>
 			</div>
 			<div class="leaflet-control input-group">
@@ -104,7 +106,7 @@ require_once __DIR__ . "/../bootstrap.php";
 					<option selected>Select log first.</option>
 				</select>
 				<div class="input-group-append">
-					<button type="button" class="btn btn-danger" onclick="time_filter__reset();">Reset</button>
+					<button type="button" class="btn btn-danger" onclick="time_filter__reset();"><i class="fa fa-times"></i></button>
 				</div>
 			</div>
 			<div class="leaflet-control leaflet-control-custom rounded">
@@ -121,7 +123,7 @@ require_once __DIR__ . "/../bootstrap.php";
 				<select style="height: 140px" class="pl-1 pr-2 form-control" id="event-types" multiple>
 					<option disabled>Select log first.</option>
 				</select>
-				<button type="button" class="btn btn-sm btn-danger w-100 mt-1" onclick="event_types__reset();">Reset</button>
+				<button type="button" class="btn btn-sm btn-danger w-100 mt-1" onclick="event_types__reset();"><i class="fa fa-times"></i></button>
 			</div>
 		</div>
 	</div>
@@ -254,6 +256,21 @@ require_once __DIR__ . "/../bootstrap.php";
 			$('#event-types').change();
 			setUrlParam('event_types', null);
 			event_types = null;
+		}
+
+		var statusBarTimeout;
+		function showStatusMessage(message, timeout) {
+			var $statusBar = $("#status-bar");
+			if (statusBarTimeout)
+			{
+				clearTimeout(statusBarTimeout);
+				$statusBar.append("\n");
+			}
+			$statusBar.show().append(message);
+			statusBarTimeout = setTimeout(function() {
+				statusBarTimeout = null;
+				$statusBar.hide().html("");
+			}, timeout || 3000);
 		}
 	</script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.js" integrity="sha256-6BZRSENq3kxI4YYBDqJ23xg0r1GwTHEpvp3okdaIqBw=" crossorigin="anonymous"></script>
@@ -464,6 +481,7 @@ require_once __DIR__ . "/../bootstrap.php";
 		var eventTypes = [];
 
 		function loadEvents() {
+			showStatusMessage("Loading events...");
 			eventTypes = [];
 			$.get("log.php", { server: server, file: log }).done(function (data) {
 				var eventsData = JSON.parse(data);
@@ -498,6 +516,7 @@ require_once __DIR__ . "/../bootstrap.php";
 		}
 
 		function filterEvents() {
+			showStatusMessage("Filtering events...");
 			visibleEvents = [];
 			for (var i = 0; i < events.length; i++) {
 				var e = events[i];
@@ -529,6 +548,7 @@ require_once __DIR__ . "/../bootstrap.php";
 		var markers = [];
 		var lines = [];
 		function displayEvents() {
+			showStatusMessage("Rendering events...");
 			$("#event-count-filtered").text(visibleEvents.length);
 			clusterGroup.clearLayers();
 			markers = [];
@@ -553,7 +573,7 @@ require_once __DIR__ . "/../bootstrap.php";
 
 				tooltipContent = e.event_time + ": <b>" + e.event_data.name + "</b>";
 				popupContent = "<h6>" + e.event_type + " <small>" + e.event_time + "<a href='javascript:setTimeFilter(" + e.event_time_numeric + ", 15);'>&plusmn;15m</a></small></h6>";
-				popupContent += "<b>" + e.event_data.name + "</b> (" + e.event_data.steamid64 + " <small><a href='javascript:$(\"#steamid\").val(\"" + e.event_data.steamid64  + "\").keyup();'>filtr</a></small>)";
+				popupContent += "<b>" + e.event_data.name + "</b> (<a href=\"https://steamcommunity.com/profiles/" + e.event_data.steamid64 + "/\" target=\"_blank\">Steam profile</a>, <small><a href='javascript:$(\"#steamid\").val(\"" + e.event_data.steamid64  + "\").keyup();'>filtr</a></small>)";
 				popupContent += "<br><pre class='mt-2'>" + JSON.stringify(e.event_data, null, 2) + "</pre>";
 
 				if (e.event_type === "KILLED_BY_PLAYER" || e.event_type === "KILLED_BY_ZOMBIE" || e.event_type === "KILLED_BY_CAR") {
@@ -614,6 +634,8 @@ require_once __DIR__ . "/../bootstrap.php";
 					}).addTo(map));
 				}
 			}
+
+			showStatusMessage("Events successfully processed!");
 		}
 
 		/*
@@ -633,6 +655,7 @@ require_once __DIR__ . "/../bootstrap.php";
 		}
 
 		$(function() {
+			showStatusMessage("Loading available server list...");
 			$.get("servers.php").done(function (data) {
 				var servers = JSON.parse(data);
 				for (var group in servers)
