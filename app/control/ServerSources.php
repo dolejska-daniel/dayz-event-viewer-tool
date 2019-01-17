@@ -74,6 +74,15 @@ class ServerSources
 				if ($config->server->group != $this->serviceConfig->behaviour->serverSelection)
 					continue;
 
+			// String array key fix
+			foreach ($config->map->zones as $zone)
+			{
+				$bounds = $zone->bounds;
+				$zone->bounds = [];
+				foreach ($bounds as $bound)
+					$zone->bounds[] = array_values((array)$bound);
+			}
+
 			// Save processed servers
 			$this->serverData[$config->server->group][$config->server->id] = $config;
 			$this->serverGroups[$config->server->id] = $config->server->group;
@@ -198,12 +207,12 @@ class ServerSources
 		return $this->serverData;
 	}
 
-	public function getServer($serverId): array
+	public function getServer($serverId): ArrayHash
 	{
 		if (!isset($this->serverGroups[$serverId]))
-			return [];
+			return null;
 
-		return (array)$this->serverData[$this->serverGroups[$serverId]][$serverId];
+		return $this->serverData[$this->serverGroups[$serverId]][$serverId];
 	}
 
 	public function getServerList(): array

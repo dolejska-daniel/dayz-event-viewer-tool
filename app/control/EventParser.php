@@ -89,25 +89,54 @@ class EventParser
 			if ($skipEvent)
 				continue;
 
-			// Whitelist filter
-			if ($this->serviceConfig->limits->events->whitelist
-				&& !in_array($type, (array)$this->serviceConfig->limits->events->whitelist))
-			{
-				continue;
-			}
-
-			// Blacklist filter
-			if ($this->serviceConfig->limits->events->blacklist
-				&& in_array($type, (array)$this->serviceConfig->limits->events->blacklist))
-				continue;
-
-			$events[] = [
+			$event = [
 				'event_time' => (int)$timestamp,
 				'event_type' => $type,
 				'event_data' => $attrs,
 			];
+
+			$this->postprocessEvent($events, $event);
+			$events[] = $event;
+		}
+
+		foreach ($events as $eventId => $event)
+		{
+			// Whitelist filter
+			if ($this->serviceConfig->limits->events->whitelist
+				&& !in_array($event['event_type'], (array)$this->serviceConfig->limits->events->whitelist))
+				unset($events[$eventId]);
+
+			// Blacklist filter
+			if ($this->serviceConfig->limits->events->blacklist
+				&& in_array($event['event_type'], (array)$this->serviceConfig->limits->events->blacklist))
+				unset($events[$eventId]);
 		}
 
 		return $events;
+	}
+
+	protected function postprocessEvent(array &$events, array &$event)
+	{
+		if ($event['event_type'] === "KILLED_BY_PLAYER")
+		{
+			$data = $event['event_data'];
+			unset($data['killer']);
+
+			$data['name']       = $event['event_data']['killer']['name'];
+			$data['steamid64']  = $event['event_data']['killer']['steamid64'];
+			$data['position']   = $event['event_data']['killer']['position'];
+			$data['hands']      = $event['event_data']['killer']['hands'];
+
+			$data['victim']['name']      = $event['event_data']['name'];
+			$data['victim']['steamid64'] = $event['event_data']['steamid64'];
+			$data['victim']['position']  = $event['event_data']['position'];
+			$data['victim']['hands']     = $event['event_data']['hands'];
+
+			$events[] = [
+				'event_time' => $event['event_time'],
+				'event_type' => 'KILLED_PLAYER',
+				'event_data' => $data,
+			];
+		}
 	}
 }

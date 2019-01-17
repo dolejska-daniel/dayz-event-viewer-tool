@@ -27,8 +27,28 @@ events:
 	KILLED_BY_PLAYER:
 		# Marker type shown on map
 		marker: red
-		# When visually connecting events, this event will cause existing sequence to end.
+		# When visually connecting events, this event will cause existing
+		# sequence to end.
 		terminatesSequence: yes
+		# When visually connecting events, this option will cause displaying
+		# lines to specified locations.
+		lineTo:
+			options:
+				color: '#ff0000'
+				weight: 1.75
+				opacity: 0.8
+			targets:
+				killer: position
+	KILLED_PLAYER:
+		marker: red
+		terminatesSequence: no
+		lineTo:
+			options:
+				color: '#ff0000'
+				weight: 1.75
+				opacity: 0.8
+			targets:
+				victim: position
 	KILLED_BY_CAR:
 		marker: red
 		terminatesSequence: yes

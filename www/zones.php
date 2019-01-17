@@ -1,5 +1,6 @@
 <?php
 
+use Nette\Utils\DateTime;
 use Nette\Utils\Json;
 
 /** @var \App\Control\ServerSources $ServerSources */
@@ -9,17 +10,12 @@ $serverId = $_GET['server'];
 
 try
 {
-	$server = $ServerSources->getServer($serverId);
-	$server = $server->server;
+	$serverConfig = $ServerSources->getServer($serverId);
 
-	$files = [];
-	$logFiles = $ServerSources->getLogFiles($serverId);
-	foreach ($logFiles as $filepath => $file)
-		$files[$filepath] = $file['name'];
+	$zones = $serverConfig->map->zones;
 
 	echo Json::encode([
-		'server' => $server,
-		'files' => $files,
+		'zones' => $zones,
 	]/*, Json::PRETTY*/);
 }
 catch (\Throwable $ex)

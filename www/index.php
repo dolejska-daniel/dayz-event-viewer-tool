@@ -106,7 +106,7 @@ require_once __DIR__ . "/../bootstrap.php";
 		<div class="leaflet-bottom leaflet-left" id="controls-left">
 			<?php if ($service->limits->filters->steamid): ?>
 			<div class="leaflet-control input-group">
-				<input type="text" title="SteamID64" placeholder="76561198055158908" class=" form-control" id="steamid" disabled>
+				<input type="text" title="SteamID64" placeholder="76561198055158908" class=" form-control" id="steamid" value="<?php if (@$_GET['steamid64']): echo $_GET['steamid64']; endif; ?>" disabled>
 				<div class="input-group-append">
 					<button type="button" class="btn btn-danger" onclick="$('#steamid').val('').keyup();"><i class="fa fa-times"></i></button>
 				</div>
@@ -132,8 +132,8 @@ require_once __DIR__ . "/../bootstrap.php";
 					<label class="custom-control-label" for="connectEvents">Visually connect player events</label>
 				</div>
 				<div class="custom-control custom-checkbox">
-					<input type="checkbox" class="custom-control-input" id="connectKillEvents" value="1" onchange="displayEvents(); setUrlParam('connect_kill_events', $('#connectKillEvents:checked').val());" <?php if (@$_GET['connect_kill_events'] == 1): ?>checked<?php endif; ?> disabled>
-					<label class="custom-control-label" for="connectKillEvents">Visually connect kill events</label>
+					<input type="checkbox" class="custom-control-input" id="visualizeAdditionalData" value="1" onchange="displayEvents(); setUrlParam('visualize_additional_data', $('#visualizeAdditionalData:checked').val());" <?php if (@$_GET['visualize_additional_data'] == 1): ?>checked<?php endif; ?>>
+					<label class="custom-control-label" for="visualizeAdditionalData">Visualize additional event data</label>
 				</div>
 			</div>
 			<?php endif; ?>
@@ -197,6 +197,7 @@ require_once __DIR__ . "/../bootstrap.php";
 			}
 			setUrlParam('log', $this.val());
 			loadEvents();
+			loadZones();
 		});
 
 		var time_from, time_from_default;
@@ -372,6 +373,10 @@ require_once __DIR__ . "/../bootstrap.php";
 			return [x, y];
 		}
 
+		function getLatLngFromPosition(p) {
+			return getLatLng(p.x, p.z, p.y);
+		}
+
 		function getLatLng(x, y, z) {
 			var lng = x / width;
 			lng *= mapWidth;
@@ -460,6 +465,29 @@ require_once __DIR__ . "/../bootstrap.php";
 			});
 		}
 
+		var zones = [];
+		var zonePolygons = [];
+		function loadZones() {
+			showStatusMessage("Loading zones...");
+			$.get("zones.php", { server: server }).done(function (data) {
+				var result = JSON.parse(data);
+				for (var zoneName in result.zones)
+				{
+					if (!result.zones.hasOwnProperty(zoneName))
+						continue;
+
+					var z = zones[zoneName] = result.zones[zoneName];
+					var latLngs = [];
+					for (var i = 0; i < z.bounds.length; i++)
+						latLngs.push(getLatLng(z.bounds[i][0], z.bounds[i][1], 0));
+
+					var polygon = L.polygon(latLngs, z.options);
+					polygon.addTo(map);
+					zonePolygons.push(polygon);
+				}
+			});
+		}
+
 		// https://leafletjs.com/reference-1.4.0.html#control-layers
 		var events = [];
 		var visibleEvents = [];
@@ -535,11 +563,70 @@ require_once __DIR__ . "/../bootstrap.php";
 			}
 		}
 
+		// https://github.com/Leaflet/Leaflet.markercluster
 		var clusterGroup = L.markerClusterGroup({
 			/*disableClusteringAtZoom:  ,*/
 			maxClusterRadius: 30,
 		});
 		map.addLayer(clusterGroup);
+
+		var paths = [];
+		function paths_global__validate( id ) {
+			if (typeof paths[id] === "undefined")
+			{
+				paths[id] = {};
+				paths__validate(id, 'normal');
+				paths__validate(id, 'kill');
+			}
+		}
+
+		function paths__validate( id, type, options ) {
+			if (typeof paths[id] === "undefined")
+				paths_global__validate(id);
+
+			if (typeof paths[id][type] === "undefined")
+			{
+				paths[id][type] = {
+					id: 0,
+					entries: {
+						0: [],
+					},
+					options: options || {
+						color: "#000000",
+						weight: 1.75,
+						opacity: 0.8,
+					}
+				};
+			}
+		}
+
+		function paths__terminate( id, type ) {
+			paths[id][type].id++;
+			paths[id][type].entries[paths[id][type].id] = [];
+		}
+
+		function paths__push( id, type, data ) {
+			paths[id][type].entries[paths[id][type].id].push(data);
+		}
+
+		function lineTo_foreach( targets, object, callback, callback_data ) {
+			for (var propId in targets)
+			{
+				if (!targets.hasOwnProperty(propId))
+					continue;
+
+				object = object[propId];
+				var prop = targets[propId];
+				if (typeof prop === "object")
+				{
+					lineTo_foreach(prop, object, callback, callback_data);
+				}
+				else
+				{
+					callback(object[prop], callback_data);
+				}
+			}
+		}
 
 		var markers = [];
 		var lines = [];
@@ -554,7 +641,7 @@ require_once __DIR__ . "/../bootstrap.php";
 			}
 			lines = [];
 
-			var paths = [];
+			paths = [];
 			for (var i = 0; i < visibleEvents.length; i++) {
 				var e = visibleEvents[i];
 				if (e.event_data.position == null
@@ -583,24 +670,31 @@ require_once __DIR__ . "/../bootstrap.php";
 
 				<?php if ($service->limits->extensions->visuals): ?>
 				if ($("#connectEvents:checked").val()) {
-					if (typeof paths[e.event_data.steamid64] === "undefined")
-					{
-						paths[e.event_data.steamid64] = {
-							id: 0,
-							paths: {
-								0: []
-							}
-						};
-					}
-					paths[e.event_data.steamid64].paths[paths[e.event_data.steamid64].id].push(getLatLng(e.event_data.position.x, e.event_data.position.z, e.event_data.position.y));
+					paths__validate(e.event_data.steamid64, 'normal', {
+						color: "#000000",
+						weight: 1.75,
+						opacity: 0.8,
+					});
+					paths__push(e.event_data.steamid64, 'normal', getLatLngFromPosition(e.event_data.position));
 
 					if (settings)
 					{
 						if (settings.terminatesSequence)
 						{
-							paths[e.event_data.steamid64].id++;
-							paths[e.event_data.steamid64].paths[paths[e.event_data.steamid64].id] = [];
+							paths__terminate(e.event_data.steamid64, 'normal');
 						}
+					}
+				}
+
+				if ($("#visualizeAdditionalData:checked").val()) {
+					if (settings && settings.lineTo)
+					{
+						paths__validate(e.event_data.steamid64, 'additional', settings.lineTo.options);
+						lineTo_foreach(settings.lineTo.targets, e.event_data, function( targetPosition, e ) {
+							paths__push(e.event_data.steamid64, 'additional', getLatLngFromPosition(e.event_data.position));
+							paths__push(e.event_data.steamid64, 'additional', getLatLngFromPosition(targetPosition));
+							paths__terminate(e.event_data.steamid64, 'additional');
+						}, e);
 					}
 				}
 				<?php endif; ?>
@@ -621,15 +715,18 @@ require_once __DIR__ . "/../bootstrap.php";
 			for (var steamid in paths) {
 				if (!paths.hasOwnProperty(steamid))
 					continue;
-				for (var path in paths[steamid].paths)
-				{
-					if (!paths[steamid].paths.hasOwnProperty(path))
+
+				for (var type in paths[steamid]) {
+					if (!paths[steamid].hasOwnProperty(type))
 						continue;
-					lines.push(L.polyline(paths[steamid].paths[path], {
-						color: "#000000",
-						weight: 1.75,
-						opacity: 0.8,
-					}).addTo(map));
+
+					for (var id in paths[steamid][type].entries)
+					{
+						if (!paths[steamid][type].entries.hasOwnProperty(id))
+							continue;
+
+						lines.push(L.polyline(paths[steamid][type].entries[id], paths[steamid][type].options).addTo(map));
+					}
 				}
 			}
 
@@ -692,6 +789,7 @@ require_once __DIR__ . "/../bootstrap.php";
 						loadLogfiles();
 						<?php else: ?>
 						loadEvents();
+						loadZones();
 						<?php endif; ?>
 					}
 				}
