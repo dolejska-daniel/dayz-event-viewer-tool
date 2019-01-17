@@ -12,12 +12,51 @@ $data = [];
 
 // TODO: preg match validation
 $serverId = $_GET['server'];
+if ($service->behaviour->server == "selectable")
+{
+}
+else if ($service->behaviour->server == "group")
+{
+	$serverId = null;
+}
+else if ($service->behaviour->server == "preselected")
+{
+	$serverId = $service->behaviour->serverSelection;
+}
+else if ($service->behaviour->server == "list")
+{
+	$serverId = null;
+}
+else if ($service->behaivour->server == "all")
+{
+	$serverId = null;
+}
+
 $serverConfig = file_get_contents(__DIR__ . "/../config/servers/$serverId.neon");
 if (!$serverConfig)
 	echo Json::encode([ 'error' => 'Server not found!' ]);
 
 $serverConfig = ArrayHash::from(Neon::decode($serverConfig));
 $data['server'] = $serverConfig->server;
+
+if ($service->behaviour->log == "selectable")
+{
+}
+else if ($service->behaviour->log == "preselected")
+{
+}
+else if ($service->behaviour->log == "list")
+{
+}
+else if ($service->behaviour->log == "today")
+{
+}
+else if ($service->behaviour->log == "lastXHours")
+{
+}
+else if ($service->behaivour->log == "all")
+{
+}
 
 if ($serverConfig->webdav->enabled)
 {

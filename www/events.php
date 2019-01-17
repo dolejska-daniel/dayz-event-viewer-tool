@@ -10,6 +10,26 @@ use Sabre\DAV\Client;
 
 // TODO: preg match validation
 $serverId = $_GET['server'];
+if ($service->behaviour->server == "selectable")
+{
+}
+else if ($service->behaviour->server == "group")
+{
+	$serverId = null;
+}
+else if ($service->behaviour->server == "preselected")
+{
+	$serverId = $service->behaviour->serverSelection;
+}
+else if ($service->behaviour->server == "list")
+{
+	$serverId = null;
+}
+else if ($service->behaivour->server == "all")
+{
+	$serverId = null;
+}
+
 $serverConfig = file_get_contents(__DIR__ . "/../config/servers/$serverId.neon");
 if (!$serverConfig)
 {
@@ -20,6 +40,27 @@ if (!$serverConfig)
 $serverConfig = ArrayHash::from(Neon::decode($serverConfig));
 $data['server'] = $serverConfig->server;
 
+$fileId = $_GET['file'];
+if ($service->behaviour->log == "selectable")
+{
+}
+else if ($service->behaviour->log == "preselected")
+{
+	$fileId = $service->behaviour->logSelection;
+}
+else if ($service->behaviour->log == "list")
+{
+}
+else if ($service->behaviour->log == "today")
+{
+}
+else if ($service->behaviour->log == "lastXHours")
+{
+}
+else if ($service->behaivour->log == "all")
+{
+}
+
 if ($serverConfig->webdav->enabled)
 {
 	$LogClient = new Client([
@@ -29,7 +70,7 @@ if ($serverConfig->webdav->enabled)
 	]);
 
 	//  TODO: Cache
-	$data = $LogClient->request('GET', "{$serverConfig->webdav->directoryPath}$_GET[file]");
+	$data = $LogClient->request('GET', "{$serverConfig->webdav->directoryPath}$fileId");
 	if ($data['statusCode'] != 200)
 	{
 		echo Json::encode([ 'error' => 'Logfile not found!' ]);
@@ -52,16 +93,39 @@ if ($serverConfig->webdav->enabled)
 		$data['time']['from_numeric'] = strtotime($data['time']['from']) - strtotime('today');
 		$data['time']['to'] = end($matches['time']);
 		$data['time']['to_numeric'] = strtotime($data['time']['to']) - strtotime('today');
+		if ($data['time']['from_numeric'] > $data['time']['to_numeric'])
+		{
+			// Midnight problem
+			$data['time']['to_numeric'] += 24 * 60 * 60;
+		}
 	}
 
+	$lastEvent_timeNumeric = 0;
 	foreach (array_keys($matches[0]) as $entry_id)
 	{
 		preg_match_all($service->regex->attribute_entry, $matches['attrs'][$entry_id], $attrs);
 
 		$time = $matches['time'][$entry_id];
+		$timeNumeric = strtotime($time) - strtotime('today');
+		if ($lastEvent_timeNumeric > $timeNumeric)
+		{
+			// Midnight problem
+			$timeNumeric += 24 * 60 * 60;
+		}
 		$event = $matches['event'][$entry_id];
 		$attrs = array_combine($attrs['keys'], $attrs['values']);
 
+		// Whitelist filter
+		if ($service->limits->events->whitelist && !in_array($event, (array)$service->limits->events->whitelist))
+		{
+			continue;
+		}
+
+		// Blacklist filter
+		if ($service->limits->events->blacklist && in_array($event, (array)$service->limits->events->blacklist))
+			continue;
+
+		// Process special attributes (Eg. position)
 		foreach ($service->regex->attributes as $key => $regex)
 		{
 			if (isset($attrs[$key]))
@@ -74,6 +138,7 @@ if ($serverConfig->webdav->enabled)
 			}
 		}
 
+		// Parse attribute groups
 		foreach ($attrs as $key => $value)
 		{
 			$key_array = explode($service->regex->attribute_group_delimiter, $key);
@@ -95,10 +160,11 @@ if ($serverConfig->webdav->enabled)
 
 		$data['events'][] = [
 			'event_time' => $time,
-			'event_time_numeric' => strtotime($time) - strtotime('today'),
+			'event_time_numeric' => $timeNumeric,
 			'event_type' => $event,
 			'event_data' => $attrs,
 		];
+		$lastEvent_timeNumeric = $timeNumeric;
 	}
 
 	echo Json::encode($data/*, Json::PRETTY*/);

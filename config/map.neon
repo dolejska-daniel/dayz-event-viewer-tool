@@ -1,0 +1,38 @@
+#
+# Service configuration file
+#
+
+settings:
+	defaults:
+		baseLayer: Top
+	options:
+		center: [128, 128]
+		minZoom: 1
+		maxZoom: 12
+		zoom: 2
+		crs: Simple
+
+baseLayers:
+	Top:
+		source: 'https://maps.izurvive.com/maps/CH-Top/1.11.7/tiles/{z}/{x}/{y}.png'
+		options:
+			attribution: 'Map data &copy; <a href=\"https://www.izurvive.com/\">iZurvive</a>; Event processor &copy; <a href=\"https://dayz-sa.cz/\">DayZ-SA.cz</a>, Daniel Dolejška'
+			bounds: [[0, 0], [256, 256]]
+			minNativeZoom: 1
+			maxNativeZoom: 7
+			reuseTiles: true
+			noWrap: true
+			tms: true
+	Satellite:
+		source: 'https://maps.izurvive.com/maps/CH-Sat/1.11.7/tiles/{z}/{x}/{y}.png'
+		options:
+			attribution: 'Map data &copy; <a href=\"https://www.izurvive.com/\">iZurvive</a>; Event processor &copy; <a href=\"https://dayz-sa.cz/\">DayZ-SA.cz</a>, Daniel Dolejška'
+			bounds: [[0, 0], [256, 256]]
+			minNativeZoom: 1
+			maxNativeZoom: 7
+			reuseTiles: true
+			noWrap: true
+			tms: true
+
+overlayLayers:
+

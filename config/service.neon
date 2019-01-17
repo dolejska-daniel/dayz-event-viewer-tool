@@ -86,33 +86,35 @@ limits:
 		log: yes
 		# Event statistics shown?
 		stats: yes
+		# Status bar shown?
+		status: yes
 	events:
 		# List of event types allowed to be displayed
 		whitelist:
-		#	- example
+		#	- CONNECTED
 		# List of event types forbidden from being displayed
 		blacklist:
-		#	- example
+		#	- CONNECTED
 
 behaviour:
 	# selectable, preselected, list, group, all
 	server: selectable
-	# if all: null
+	# TODO: if all: null
 	# if selectable: null
 	# if preselected: {SERVER_ID}
-	# if list:
+	# TODO: if list:
 	# 	- {SERVER_ID}
 	# 	- {SERVER_ID}
-	# if group: {GROUP_NAME}
+	# TODO: if group: {GROUP_NAME}
 	serverSelection: null
 	# selectable, preselected, list, today, lastXHours, all
-	logs: selectable
-	# if all: null
+	log: selectable
+	# TODO: if all: null
 	# if selectable: null
 	# if preselected: {LOGFILE_REL_PATH}
-	# if list:
+	# TODO: if list:
 	# 	- {LOGFILE_REL_PATH}
 	# 	- {LOGFILE_REL_PATH}
-	# if today: null
-	# if lastXHours: {HOURS_FROM_NOW}
-	logsSelection: null
+	# TODO: if today: null
+	# TODO: if lastXHours: {HOURS_FROM_NOW}
+	logSelection: null

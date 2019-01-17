@@ -57,9 +57,12 @@ require_once __DIR__ . "/../bootstrap.php";
 			</div>
 		</div>
 		<div class="leaflet-top leaflet-right" id="controls-right" style="padding-top: 40px">
+			<?php if ($service->limits->extensions->server): ?>
 			<select class="leaflet-control form-control" id="server">
 				<option selected disabled>-- Select Server --</option>
 			</select>
+			<?php endif; ?>
+			<?php if ($service->limits->extensions->log): ?>
 			<div class="leaflet-control input-group">
 				<select class="form-control" id="log" disabled>
 					<option selected disabled>-- Select Log --</option>
@@ -71,6 +74,8 @@ require_once __DIR__ . "/../bootstrap.php";
 					<button type="button" class="btn btn-primary" onclick="$('#log').change();"><i class="fa fa-sync"></i></button>
 				</div>
 			</div>
+			<?php endif; ?>
+			<?php if ($service->limits->extensions->stats): ?>
 			<div class="leaflet-control leaflet-control-custom rounded">
 				<table>
 					<tbody>
@@ -89,15 +94,21 @@ require_once __DIR__ . "/../bootstrap.php";
 					</tbody>
 				</table>
 			</div>
+			<?php endif; ?>
+			<?php if ($service->limits->extensions->status): ?>
 			<div class="leaflet-control leaflet-control-custom rounded p-0" style="font-size: 12px"><pre class="p-1 m-0 text-right" id="status-bar" style="display: none;"></pre></div>
+			<?php endif; ?>
 		</div>
 		<div class="leaflet-bottom leaflet-left" id="controls-left">
+			<?php if ($service->limits->filters->steamid): ?>
 			<div class="leaflet-control input-group">
 				<input type="text" title="SteamID64" placeholder="76561198055158908" class=" form-control" id="steamid" disabled>
 				<div class="input-group-append">
 					<button type="button" class="btn btn-danger" onclick="$('#steamid').val('').keyup();"><i class="fa fa-times"></i></button>
 				</div>
 			</div>
+			<?php endif; ?>
+			<?php if ($service->limits->filters->time): ?>
 			<div class="leaflet-control input-group">
 				<select class="form-control" id="time-from" disabled>
 					<option selected>Select log first.</option>
@@ -109,6 +120,8 @@ require_once __DIR__ . "/../bootstrap.php";
 					<button type="button" class="btn btn-danger" onclick="time_filter__reset();"><i class="fa fa-times"></i></button>
 				</div>
 			</div>
+			<?php endif; ?>
+			<?php if ($service->limits->extensions->visuals): ?>
 			<div class="leaflet-control leaflet-control-custom rounded">
 				<div class="custom-control custom-checkbox">
 					<input type="checkbox" class="custom-control-input" id="connectEvents" value="1" onchange="displayEvents(); setUrlParam('connect_events', $('#connectEvents:checked').val());" <?php if (@$_GET['connect_events'] == 1): ?>checked<?php endif; ?>>
@@ -119,17 +132,21 @@ require_once __DIR__ . "/../bootstrap.php";
 					<label class="custom-control-label" for="connectKillEvents">Visually connect kill events</label>
 				</div>
 			</div>
+			<?php endif; ?>
+			<?php if ($service->limits->filters->type): ?>
 			<div class="leaflet-control leaflet-control-custom rounded">
 				<select style="height: 140px" class="pl-1 pr-2 form-control" id="event-types" multiple>
 					<option disabled>Select log first.</option>
 				</select>
 				<button type="button" class="btn btn-sm btn-danger w-100 mt-1" onclick="event_types__reset();"><i class="fa fa-times"></i></button>
 			</div>
+			<?php endif; ?>
 		</div>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
 	<script type="text/javascript">
+		<?php if ($service->limits->filters->steamid): ?>
 		var steamid64;
 		<?php if (@$_GET['steamid64']): ?>
 		steamid64 = "<?=$_GET['steamid64']?>";
@@ -148,6 +165,7 @@ require_once __DIR__ . "/../bootstrap.php";
 				displayEvents();
 			}
 		});
+		<?php endif; ?>
 
 		var server;
 		<?php if (@$_GET['server']): ?>
@@ -157,26 +175,7 @@ require_once __DIR__ . "/../bootstrap.php";
 			var $this = $( this );
 			server = $this.val();
 			setUrlParam('server', $this.val());
-			$.get("logs.php", { server: $this.val() }).done(function (data) {
-				var logs = JSON.parse(data);
-				var $group = $( "#log-group" ).attr("label", logs.server.name).html("");
-				for (var fileid in logs.files)
-				{
-					if (!logs.files.hasOwnProperty(fileid))
-						continue;
-
-					var file = logs.files[fileid];
-					$group.append($("<option>").attr("value", fileid).text(file));
-				}
-				var $log = $( "#log" ).removeAttr("disabled");
-				$log.val(log);
-				if ($log.val() == null)
-				{
-					// Select current log if no other log has been selected
-					$log.val("DayZServer_x64.ADM");
-				}
-				$log.change();
-			});
+			loadLogfiles();
 		});
 
 		var log;
@@ -197,6 +196,8 @@ require_once __DIR__ . "/../bootstrap.php";
 		});
 
 		var time_from;
+		var time_to;
+		<?php if ($service->limits->filters->time): ?>
 		<?php if (@$_GET['time_from']): ?>
 		time_from = "<?=$_GET['time_from']?>";
 		<?php endif; ?>
@@ -216,7 +217,6 @@ require_once __DIR__ . "/../bootstrap.php";
 			displayEvents();
 		});
 
-		var time_to;
 		<?php if (@$_GET['time_to']): ?>
 		time_to = "<?=$_GET['time_to']?>";
 		<?php endif; ?>
@@ -239,7 +239,9 @@ require_once __DIR__ . "/../bootstrap.php";
 			$('#time-from').val('').change();
 			$('#time-to').val('').change();
 		}
+		<?php endif; ?>
 
+		<?php if ($service->limits->filters->type): ?>
 		var event_types;
 		<?php if (@$_GET['event_types']): ?>
 		event_types = JSON.parse(atob("<?=$_GET['event_types']?>"));
@@ -257,9 +259,11 @@ require_once __DIR__ . "/../bootstrap.php";
 			setUrlParam('event_types', null);
 			event_types = null;
 		}
+		<?php endif; ?>
 
 		var statusBarTimeout;
 		function showStatusMessage(message, timeout) {
+			<?php if ($service->limits->extensions->status): ?>
 			var $statusBar = $("#status-bar");
 			if (statusBarTimeout)
 			{
@@ -271,6 +275,7 @@ require_once __DIR__ . "/../bootstrap.php";
 				statusBarTimeout = null;
 				$statusBar.hide().html("");
 			}, timeout || 3000);
+			<?php endif; ?>
 		}
 	</script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.js" integrity="sha256-6BZRSENq3kxI4YYBDqJ23xg0r1GwTHEpvp3okdaIqBw=" crossorigin="anonymous"></script>
@@ -312,6 +317,10 @@ require_once __DIR__ . "/../bootstrap.php";
 			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
 			shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
 		}));
+		pins['yellow'] = new L.Icon(Object.assign(pinDefaults, {
+			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png',
+			shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+		}));
 		pins['orange'] = new L.Icon(Object.assign(pinDefaults, {
 			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
 			shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -324,67 +333,25 @@ require_once __DIR__ . "/../bootstrap.php";
 			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png',
 			shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
 		}));
+		pins['black'] = new L.Icon(Object.assign(pinDefaults, {
+			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png',
+			shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+		}));
 
-		/*
-		L.tileLayer('map/{z}/{x}/{y}.png', {
-			attribution: '&copy; 2019 <a href="https://dayz-sa.cz/">DayZ-SA.cz</a>, Daniel Dolejška',
-			errorTileUrl: 'map/0.png',
-			reuseTiles: true,
-			tms: true,
-			noWrap: true,
-		}).addTo(map);*/
-
-		var viewTop = L.tileLayer('https://maps.izurvive.com/maps/CH-Top/1.11.7/tiles/{z}/{x}/{y}.png', {
-			attribution: 'Map data &copy; <a href="https://www.izurvive.com/">iZurvive</a>; Event processor &copy; <a href="https://dayz-sa.cz/">DayZ-SA.cz</a>, Daniel Dolejška',
-			bounds: [[0, 0], [256, 256]],
-			reuseTiles: true,
-			tms: true,
-			noWrap: true,
-			minNativeZoom: 1,
-			maxNativeZoom: 7,
-		});
-		viewTop.getTileUrl = function (coords) {
-			//coords.x = coords.x;
+		var baseLayers = {};
+		<?php foreach($map->baseLayers as $id => $baseLayer): ?>
+		baseLayers['<?=$id?>'] = L.tileLayer('<?=$baseLayer->source?>', JSON.parse('<?=json_encode($baseLayer->options)?>'));
+		baseLayers['<?=$id?>'].getTileUrl = function (coords) {
 			coords.y = -coords.y - 1;
-			return L.TileLayer.prototype.getTileUrl.bind(viewTop)(coords);
+			return L.TileLayer.prototype.getTileUrl.bind(baseLayers['<?=$id?>'])(coords);
 		};
+		<?php endforeach; ?>
 
-		var viewSatellite = L.tileLayer('https://maps.izurvive.com/maps/CH-Sat/1.11.7/tiles/{z}/{x}/{y}.png', {
-			attribution: 'Map data &copy; <a href="https://www.izurvive.com/">iZurvive</a>; Event processor &copy; <a href="https://dayz-sa.cz/">DayZ-SA.cz</a>, Daniel Dolejška',
-			bounds: [[0, 0], [256, 256]],
-			reuseTiles: true,
-			tms: true,
-			noWrap: true,
-			minNativeZoom: 1,
-			maxNativeZoom: 7,
-		});
-		viewSatellite.getTileUrl = function (coords) {
-			//coords.x = coords.x;
-			coords.y = -coords.y - 1;
-			return L.TileLayer.prototype.getTileUrl.bind(viewSatellite)(coords);
-		};
-
-		var views = {
-			"Top": viewTop,
-			"Satellite": viewSatellite,
-		};
-
-		var map = L.map('map', {
-			center: [128, 128],
-			preferCanvas: true,
-			minZoom: 1,
-			maxZoom: 12,
-			zoom: 2,
-			/*
-			zoomSnap: 0.25,
-			zoomDelta: 0.25,
-			wheelDebounceTime: 0,
-			wheelPxPerZoomLevel: 1000,
-			*/
-			crs: L.CRS.Simple,
-		});
-		viewTop.addTo(map);
-		L.control.layers(views, null, {
+		var map = L.map('map', Object.assign(JSON.parse('<?=json_encode($map->settings->options)?>'), {
+			crs: L.CRS['<?=$map->settings->options->crs?>'],
+		}));
+		baseLayers['<?=$map->settings->defaults->baseLayer?>'].addTo(map);
+		L.control.layers(baseLayers, null, {
 			position: 'topleft'
 		}).addTo(map);
 		//map.setMaxBounds(map.getBounds());
@@ -412,7 +379,7 @@ require_once __DIR__ . "/../bootstrap.php";
 		function timeToInts(secs)
 		{
 			return [
-				Math.floor(secs / 3600),
+				Math.floor(secs / 3600) % 24,
 				Math.floor((secs % 3600) / 60),
 				Math.floor((secs % 3600) % 60),
 			];
@@ -429,6 +396,8 @@ require_once __DIR__ . "/../bootstrap.php";
 			var H = x[0].toString();
 			var i = x[1].toString();
 			var s = x[2].toString();
+			if (H.length === 1)
+				H = "0" + H;
 			if (i.length === 1)
 				i = "0" + i;
 			if (s.length === 1)
@@ -449,6 +418,8 @@ require_once __DIR__ . "/../bootstrap.php";
 		}
 
 		function generateTimeFilter(from, to) {
+			if (from > to)
+				to+= 24 * 60 * 60; // Midnight problem
 			var fromInts = timeToInts(from);
 			var current = fromInts[0] * 3600 + Math.ceil(fromInts[1] * 60 / 300) * 300;
 
@@ -475,6 +446,29 @@ require_once __DIR__ . "/../bootstrap.php";
 			$timeTo.val(time_to || 2 * 24 * 3600).change();
 		}
 
+		function loadLogfiles() {
+			$.get("logs.php", { server: server }).done(function (data) {
+				var logs = JSON.parse(data);
+				var $group = $( "#log-group" ).attr("label", logs.server.name).html("");
+				for (var fileid in logs.files)
+				{
+					if (!logs.files.hasOwnProperty(fileid))
+						continue;
+
+					var file = logs.files[fileid];
+					$group.append($("<option>").attr("value", fileid).text(file));
+				}
+				var $log = $( "#log" ).removeAttr("disabled");
+				$log.val(log);
+				if ($log.val() == null)
+				{
+					// Select current log if no other log has been selected
+					$log.val("DayZServer_x64.ADM");
+				}
+				$log.change();
+			});
+		}
+
 		// https://leafletjs.com/reference-1.4.0.html#control-layers
 		var events = [];
 		var visibleEvents = [];
@@ -483,7 +477,7 @@ require_once __DIR__ . "/../bootstrap.php";
 		function loadEvents() {
 			showStatusMessage("Loading events...");
 			eventTypes = [];
-			$.get("log.php", { server: server, file: log }).done(function (data) {
+			$.get("events.php", { server: server, file: log }).done(function (data) {
 				var eventsData = JSON.parse(data);
 				events = eventsData.events;
 				$( "#event-count" ).text(events.length);
@@ -492,6 +486,7 @@ require_once __DIR__ . "/../bootstrap.php";
 				$( "#time-to" ).removeAttr("disabled");
 				$( "#steamid" ).removeAttr("disabled");
 
+				<?php if ($service->limits->filters->type): ?>
 				for (var i = 0; i < events.length; i++) {
 					var e = events[i];
 					eventTypes[e.event_type] = e.event_type;
@@ -508,6 +503,7 @@ require_once __DIR__ . "/../bootstrap.php";
 
 				if (event_types)
 					$eventTypes.val(event_types).change();
+				<?php endif; ?>
 
 				generateTimeFilter(eventsData.time.from_numeric, eventsData.time.to_numeric);
 				filterEvents();
@@ -521,19 +517,25 @@ require_once __DIR__ . "/../bootstrap.php";
 			for (var i = 0; i < events.length; i++) {
 				var e = events[i];
 
+				<?php if ($service->limits->filters->type): ?>
 				// Event type filters
 				if (event_types && event_types.indexOf(e.event_type) === -1)
 					continue;
+				<?php endif; ?>
 
+				<?php if ($service->limits->filters->time): ?>
 				// Time filters
 				if (e.event_time_numeric < $("#time-from").val())
 					continue;
 				if (e.event_time_numeric > $("#time-to").val())
 					continue;
+				<?php endif; ?>
 
+				<?php if ($service->limits->filters->steamid): ?>
 				// SteamID filter
 				if (steamid64 && e.event_data.steamid64 != steamid64)
 					continue;
+				<?php endif; ?>
 
 				visibleEvents.push(e);
 			}
@@ -582,6 +584,7 @@ require_once __DIR__ . "/../bootstrap.php";
 					pin = pins[settings.marker]
 				}
 
+				<?php if ($service->limits->extensions->visuals): ?>
 				if ($("#connectEvents:checked").val()) {
 					if (typeof paths[e.event_data.steamid64] === "undefined")
 					{
@@ -603,6 +606,7 @@ require_once __DIR__ . "/../bootstrap.php";
 						}
 					}
 				}
+				<?php endif; ?>
 
 				var marker = L.marker(getLatLng(e.event_data.position.x, e.event_data.position.z, e.event_data.position.y), {
 					//title: e.event_type,
@@ -655,6 +659,8 @@ require_once __DIR__ . "/../bootstrap.php";
 			showStatusMessage("Loading available server list...");
 			$.get("servers.php").done(function (data) {
 				var servers = JSON.parse(data);
+
+				<?php if ($service->limits->extensions->server): ?>
 				for (var group in servers)
 				{
 					if (!servers.hasOwnProperty(group))
@@ -672,6 +678,27 @@ require_once __DIR__ . "/../bootstrap.php";
 				var $server = $( "#server" ).append(g);
 				if (server)
 					$server.val(server).change();
+
+				<?php else: ?>
+				for (var group in servers)
+				{
+					if (!servers.hasOwnProperty(group))
+						continue;
+
+					for (var s in servers[group])
+					{
+						if (!servers[group].hasOwnProperty(s))
+							continue;
+
+						server = s;
+						<?php if ($service->limits->extensions->log): ?>
+						loadLogfiles();
+						<?php else: ?>
+						loadEvents();
+						<?php endif; ?>
+					}
+				}
+				<?php endif; ?>
 			});
 		});
 	</script>
