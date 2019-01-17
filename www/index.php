@@ -469,6 +469,11 @@ require_once __DIR__ . "/../bootstrap.php";
 		var zonePolygons = [];
 		function loadZones() {
 			showStatusMessage("Loading zones...");
+			for (var i = 0; i < zonePolygons.length; i++) {
+				map.removeLayer(zonePolygons[i]);
+			}
+			zonePolygons = [];
+
 			$.get("zones.php", { server: server }).done(function (data) {
 				var result = JSON.parse(data);
 				for (var zoneName in result.zones)
