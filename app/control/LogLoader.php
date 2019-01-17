@@ -26,21 +26,13 @@ class LogLoader
 		$serverIds = [];
 		switch ($this->serviceConfig->behaviour->server)
 		{
-			case 'preselected':
-				$serverIds[] = $this->serviceConfig->behaviour->serverSelection;
-				break;
-
-			case 'list':
-				$serverIds = array_values($this->serviceConfig->behaviour->serverSelection);
-				break;
-
 			case 'all':
+			case 'preselected':
+			case 'group':
 				foreach ($this->serverSources->getServers() as $serverGroup => $servers)
 					$serverIds = array_merge($serverIds, array_keys($servers));
 				break;
-
 			case 'selectable':
-			case 'group':
 			default:
 				$serverIds[] = $serverId;
 				break;
@@ -48,6 +40,7 @@ class LogLoader
 
 		// Select logs from which will events be parsed
 		$logs = [];
+		$timestamp = null;
 		foreach ($serverIds as $serverId)
 		{
 			$serverFiles = $this->serverSources->getLogFiles($serverId);
@@ -55,17 +48,13 @@ class LogLoader
 			{
 				case 'preselected':
 				{
-					if (!isset($serverFiles[$this->serviceConfig->behaviour->logSelection]))
-						continue;
+					$selection = $this->serviceConfig->behaviour->logSelection;
+					if (is_object($selection))
+						$selection = (array)$selection;
+					else
+						$selection = [$selection];
 
-					$file = $serverFiles[$this->serviceConfig->behaviour->logSelection];
-					$logs[] = $this->serverSources->loadLogFile($serverId, $file['path']);
-					break;
-				}
-
-				case 'list':
-				{
-					foreach ($this->serviceConfig->behaviour->logSelection as $filename)
+					foreach ($selection as $filename)
 					{
 						if (!isset($serverFiles[$filename]))
 							continue;
@@ -87,10 +76,10 @@ class LogLoader
 
 				case 'today':
 				{
-					$today = strtotime('today');
+					$timestamp = strtotime('today');
 					foreach ($serverFiles as $file)
 					{
-						if ($file['datetime']->getTimestamp() < $today)
+						if ($file['datetime']->getTimestamp() < $timestamp)
 							continue;
 
 						$logs[] = $this->serverSources->loadLogFile($serverId, $file['path']);
@@ -121,25 +110,23 @@ class LogLoader
 			}
 		}
 
-		return $this->mergeContents($logs);
+		return $this->mergeContents($logs, $timestamp);
 	}
 
-	protected function mergeContents( array $logs ): string
+	protected function mergeContents( array $logs, $timestampFrom = null ): string
 	{
-		if (count($logs) == 0)
-			return "";
-		if (count($logs) == 1)
-			return end($logs);
-
 		$timestampEntries = [];
 		foreach ($logs as $log)
 		{
 			preg_match_all('/(?<timestamp>[0-9]{10}) \|.+/', $log, $matches);
 			foreach ($matches['timestamp'] as $index => $timestamp)
 			{
+				if ($timestampFrom && $timestamp < $timestampFrom)
+					continue;
 				$timestampEntries[$timestamp][] = $matches[0][$index];
 			}
 		}
+		ksort($timestampEntries);
 
 		$result = "";
 		foreach ($timestampEntries as $timestamp => $entries)

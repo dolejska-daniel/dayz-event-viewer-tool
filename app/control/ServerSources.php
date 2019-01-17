@@ -39,13 +39,13 @@ class ServerSources
 		{
 			case 'preselected':
 			{
-				$serverConfigPaths[] = WEBROOT . "/config/servers/{$this->serviceConfig->behaviour->serverSelection}.neon";
-				break;
-			}
+				$selection = $this->serviceConfig->behaviour->serverSelection;
+				if (is_object($selection))
+					$selection = (array)$selection;
+				else
+					$selection = [$selection];
 
-			case 'list':
-			{
-				foreach ($this->serviceConfig->behaviour->serverSelection as $serverId)
+				foreach ($selection as $serverId)
 					$serverConfigPaths[] = WEBROOT . "/config/servers/{$serverId}.neon";
 				break;
 			}

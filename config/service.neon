@@ -117,24 +117,26 @@ limits:
 		#	- CONNECTED
 
 behaviour:
-	# selectable, preselected, list, group, all
+	# selectable, preselected, group, all
 	server: selectable
-	# TODO: if all: null
+	# if all: null
 	# if selectable: null
 	# if preselected: {SERVER_ID}
-	# TODO: if list:
+	# 	or
+	# if preselected:
 	# 	- {SERVER_ID}
 	# 	- {SERVER_ID}
-	# TODO: if group: {GROUP_NAME}
+	# if group: {GROUP_NAME}
 	serverSelection: null
-	# selectable, preselected, list, today, time, all
+	# selectable, preselected, today, time, all
 	log: selectable
-	# TODO: if all: null
+	# if all: null
 	# if selectable: null
 	# if preselected: {LOGFILE_REL_PATH}
-	# TODO: if list:
+	#	or
+	# if preselected:
 	# 	- {LOGFILE_REL_PATH}
 	# 	- {LOGFILE_REL_PATH}
-	# TODO: if today: null
-	# TODO: if time: {INTERVAL (5 hours, 2 days, ...)}
+	# if today: null
+	# if time: {INTERVAL (5 hours, 2 days, ...)}
 	logSelection: null
