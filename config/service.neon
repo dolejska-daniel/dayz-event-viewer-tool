@@ -140,3 +140,8 @@ behaviour:
 	# if today: null
 	# if time: {INTERVAL (5 hours, 2 days, ...)}
 	logSelection: null
+	# Maximum amount of time to keep cached log valid.
+	cacheInterval: 6 hours
+	# Array of regular expressions which will force matching log files not to be cached.
+	dontCache:
+		- '/DayZServer_x64.ADM/'

@@ -9,6 +9,7 @@ use Nette\Utils\ArrayHash;
 require_once __DIR__ . '/vendor/autoload.php';
 
 define('WEBROOT', realpath(__DIR__));
+define('CACHE_PATH', realpath(WEBROOT . "/cache"));
 
 // System configuration file
 $service = ArrayHash::from(Neon::decode(file_get_contents(__DIR__ . "/config/service.neon")));

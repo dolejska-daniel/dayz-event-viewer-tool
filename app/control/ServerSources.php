@@ -187,6 +187,27 @@ class ServerSources
 		if (!isset($this->serverGroups[$serverId]))
 			return null;
 
+		$cache = true;
+		$filepathCached = null;
+		if (CACHE_PATH)
+		{
+			foreach ($this->serviceConfig->behaviour->dontCache as $regex)
+			{
+				if (preg_match($regex, $filepath))
+				{
+					$cache = false;
+					break;
+				}
+			}
+
+			if ($cache)
+			{
+				$filepathCached = CACHE_PATH . "/$serverId/" . md5($filepath);
+				if (is_file($filepathCached) && filemtime($filepathCached) > strtotime("-{$this->serviceConfig->behaviour->cacheInterval}"))
+					return file_get_contents($filepathCached);
+			}
+		}
+
 		$server = $this->serverData[$this->serverGroups[$serverId]][$serverId];
 		if ($server->webdav->enabled && $server->webdav->client)
 		{
@@ -196,7 +217,13 @@ class ServerSources
 			if ($data['statusCode'] != 200)
 				throw new \Exception("Failed to download requested file.");
 
-			return $this->preprocessLogFile($data['body']);
+			$contents = $this->preprocessLogFile($data['body']);
+			if ($cache && $filepathCached)
+			{
+				mkdir(dirname($filepathCached), 0755, true);
+				file_put_contents($filepathCached, $contents);
+			}
+			return $contents;
 		}
 
 		return null;
