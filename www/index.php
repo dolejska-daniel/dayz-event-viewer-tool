@@ -88,8 +88,12 @@ require_once __DIR__ . "/../bootstrap.php";
 						<td id="event-count-filtered">0</td>
 					</tr>
 					<tr>
-						<th class="pr-2">Time</th>
-						<td id="event-time">Unknown</td>
+						<th class="pr-2">Log from</th>
+						<td id="event-time-from">Unknown</td>
+					</tr>
+					<tr>
+						<th class="pr-2">Log to</th>
+						<td id="event-time-to">Unknown</td>
 					</tr>
 					</tbody>
 				</table>
@@ -195,8 +199,8 @@ require_once __DIR__ . "/../bootstrap.php";
 			loadEvents();
 		});
 
-		var time_from;
-		var time_to;
+		var time_from, time_from_default;
+		var time_to, time_to_default;
 		<?php if ($service->limits->filters->time): ?>
 		<?php if (@$_GET['time_from']): ?>
 		time_from = "<?=$_GET['time_from']?>";
@@ -204,7 +208,7 @@ require_once __DIR__ . "/../bootstrap.php";
 		$("#time-from").on('change', function () {
 			var $this = $( this );
 			if (!$this.val())
-				$this.val(0);
+				$this.val(time_from_default);
 			$("#time-to option").each(function (key, opt) {
 				var $opt = $(opt);
 				if (parseInt($opt.val()) <= parseInt($this.val()))
@@ -223,7 +227,7 @@ require_once __DIR__ . "/../bootstrap.php";
 		$("#time-to").on('change', function () {
 			var $this = $( this );
 			if (!$this.val())
-				$this.val(2 * 24 * 3600);
+				$this.val(time_to_default);
 			$("#time-from option").each(function (key, opt) {
 				var $opt = $(opt);
 				if (parseInt($opt.val()) >= parseInt($this.val()))
@@ -236,8 +240,8 @@ require_once __DIR__ . "/../bootstrap.php";
 			displayEvents();
 		});
 		function time_filter__reset() {
-			$('#time-from').val('').change();
-			$('#time-to').val('').change();
+			$('#time-from').val(time_from_default).change();
+			$('#time-to').val(time_to_default).change();
 		}
 		<?php endif; ?>
 
@@ -412,38 +416,25 @@ require_once __DIR__ . "/../bootstrap.php";
 			var high = from + min_diff * 60;
 			high = Math.ceil(high / 300) * 300;
 
-			// TODO: out of bounds?
-			$( "#time-from" ).val(low || 0).change();
-			$( "#time-to" ).val(high || 2 * 24 * 3600).change();
+			$( "#time-from" ).val(low || time_from_default).change();
+			$( "#time-to" ).val(high || time_to_default).change();
 		}
 
-		function generateTimeFilter(from, to) {
-			if (from > to)
-				to+= 24 * 60 * 60; // Midnight problem
-			var fromInts = timeToInts(from);
-			var current = fromInts[0] * 3600 + Math.ceil(fromInts[1] * 60 / 300) * 300;
-
-			var array = {};
-			array[from] = timeToString(from);
-			while (current < to)
-			{
-				array[current] = timeToString(current);
-				current += 5 * 60;
-			}
-			array[to] = timeToString(to);
-
-			var $timeFrom = $( "#time-from" ).html("").append($("<option>").attr("value", 0).text("From first"));
+		function timeFilter(filterEntries) {
+			var $timeFrom = $( "#time-from" ).html("");
 			var $timeTo = $( "#time-to" ).html("");
-			for (var time in array)
+
+			for (var timestamp in filterEntries)
 			{
-				if (!array.hasOwnProperty(time))
+				if (!filterEntries.hasOwnProperty(timestamp))
 					continue;
-				$timeFrom.append($("<option>").attr("value", time).text(array[time]));
-				$timeTo.append($("<option>").attr("value", time).text(array[time]));
+
+				$timeFrom.append($("<option>").val(timestamp).text(filterEntries[timestamp]));
+				$timeTo.append($("<option>").val(timestamp).text(filterEntries[timestamp]));
 			}
-			$timeTo.append($("<option>").attr("value", 2 * 24 * 3600).text("Until last"));
-			$timeFrom.val(time_from || 0).change();
-			$timeTo.val(time_to || 2 * 24 * 3600).change();
+
+			$timeFrom.val(time_from || time_from_default).change();
+			$timeTo.val(time_to || time_to_default).change();
 		}
 
 		function loadLogfiles() {
@@ -478,10 +469,11 @@ require_once __DIR__ . "/../bootstrap.php";
 			showStatusMessage("Loading events...");
 			eventTypes = [];
 			$.get("events.php", { server: server, file: log }).done(function (data) {
-				var eventsData = JSON.parse(data);
-				events = eventsData.events;
+				var result = JSON.parse(data);
+				events = result.events;
 				$( "#event-count" ).text(events.length);
-				$( "#event-time" ).text(eventsData.time.from + "–" + eventsData.time.to);
+				$( "#event-time-from" ).text(result.time.from);
+				$( "#event-time-to" ).text(result.time.to);
 				$( "#time-from" ).removeAttr("disabled");
 				$( "#time-to" ).removeAttr("disabled");
 				$( "#steamid" ).removeAttr("disabled");
@@ -505,7 +497,9 @@ require_once __DIR__ . "/../bootstrap.php";
 					$eventTypes.val(event_types).change();
 				<?php endif; ?>
 
-				generateTimeFilter(eventsData.time.from_numeric, eventsData.time.to_numeric);
+				time_from_default = result.time.first - 1;
+				time_to_default = result.time.last + 1;
+				timeFilter(result.time.filter);
 				filterEvents();
 				displayEvents();
 			});
@@ -525,9 +519,9 @@ require_once __DIR__ . "/../bootstrap.php";
 
 				<?php if ($service->limits->filters->time): ?>
 				// Time filters
-				if (e.event_time_numeric < $("#time-from").val())
+				if (e.event_time < $("#time-from").val())
 					continue;
-				if (e.event_time_numeric > $("#time-to").val())
+				if (e.event_time > $("#time-to").val())
 					continue;
 				<?php endif; ?>
 
@@ -563,11 +557,14 @@ require_once __DIR__ . "/../bootstrap.php";
 			var paths = [];
 			for (var i = 0; i < visibleEvents.length; i++) {
 				var e = visibleEvents[i];
-				/*
-				if (e.event_data.position.x == null
+				if (e.event_data.position == null
+					|| e.event_data.position.x == null
 					|| e.event_data.position.y == null
 					|| e.event_data.position.z == null)
-					continue;*/
+				{
+					console.log(e);
+					continue;
+				}
 
 				var pin = pins['blue'];
 				var tooltipContent = "";

@@ -3,15 +3,15 @@
 #
 
 regex:
-	# Single log entry
-	log_entry: '/(?<time>[0-9\:]{8}) \| DAYZ-SA --> (?<event>[A-Z\_]+):(?<attrs>.+)/'
+	# Single log entry after preprocess routines
+	log_entry: '/(?<timestamp>[0-9]{10}) \| \[DAYZ-SA\] (?<event>[A-Z\_]+):(?<attrs>.+)/'
 	# Log entry attributes
-	attribute_entry: '/(\s(?<keys>[a-z0-9]+)=\"(?<values>.+?)\")/'
-	# Attribute group delimiter string. Converts 'group1__group2__key' to
+	attribute_entry: '/(\s(?<keys>[\_a-z0-9]+)=\"(?<values>.+?)\")/'
+	# Attribute group delimiter string. Converts 'group1_group2_key' to
 	# group1:
 	#   group2:
 	#     key: value
-	attribute_group_delimiter: '__'
+	attribute_group_delimiter: '_'
 	# Special attribute regexes. System will use all non-numeric keys found in matches.
 	# {key}: {regex}
 	attributes:
@@ -107,7 +107,7 @@ behaviour:
 	# 	- {SERVER_ID}
 	# TODO: if group: {GROUP_NAME}
 	serverSelection: null
-	# selectable, preselected, list, today, lastXHours, all
+	# selectable, preselected, list, today, time, all
 	log: selectable
 	# TODO: if all: null
 	# if selectable: null
@@ -116,5 +116,5 @@ behaviour:
 	# 	- {LOGFILE_REL_PATH}
 	# 	- {LOGFILE_REL_PATH}
 	# TODO: if today: null
-	# TODO: if lastXHours: {HOURS_FROM_NOW}
+	# TODO: if time: {INTERVAL (5 hours, 2 days, ...)}
 	logSelection: null
