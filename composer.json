@@ -9,12 +9,13 @@
         }
     ],
     "require": {
+        "latte/latte": "^2.4",
         "nette/neon": "^2.4",
         "nette/utils": "^2.5",
         "sabre/dav": "^3.2",
-	    "ext-curl": "*",
-	    "ext-json": "*",
-	    "ext-mbstring": "*"
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*"
     },
     "autoload": {
         "psr-4": {

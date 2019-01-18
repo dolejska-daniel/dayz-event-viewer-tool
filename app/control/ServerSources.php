@@ -189,7 +189,7 @@ class ServerSources
 
 		$cache = true;
 		$filepathCached = null;
-		if (CACHE_PATH)
+		if (CACHEDIR)
 		{
 			foreach ($this->serviceConfig->behaviour->dontCache as $regex)
 			{
@@ -202,7 +202,7 @@ class ServerSources
 
 			if ($cache)
 			{
-				$filepathCached = CACHE_PATH . "/$serverId/" . md5($filepath);
+				$filepathCached = CACHEDIR . "/$serverId/" . md5($filepath);
 				if (is_file($filepathCached) && filemtime($filepathCached) > strtotime("-{$this->serviceConfig->behaviour->cacheInterval}"))
 					return file_get_contents($filepathCached);
 			}
