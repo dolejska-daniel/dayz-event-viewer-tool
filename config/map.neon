@@ -70,6 +70,20 @@ markers:
 		iconUrl: https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png
 	black:
 		iconUrl: https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png
+	deathCar:
+		iconUrl: images/death_car.png
+	deathExplosion:
+		iconUrl: images/death_explosion.png
+	deathSuicide:
+		iconUrl: images/death_suicide.png
+	deathZombie:
+		iconUrl: images/death_zombie.png
+	trapActivation:
+		iconUrl: images/trap_activation.png
+	connect:
+		iconUrl: images/connect.png
+	disconnect:
+		iconUrl: images/disconnect.png
 
 # Event display settings
 events:
@@ -104,19 +118,19 @@ events:
 			targets:
 				victim: position
 	KILLED_BY_CAR:
-		marker: red
+		marker: deathCar
 		terminatesSequence: yes
 	KILLED_BY_LANDMINETRAP:
-		marker: red
+		marker: deathExplosion
 		terminatesSequence: yes
 	KILLED_BY_ZOMBIE:
-		marker: red
+		marker: deathZombie
 		terminatesSequence: yes
 	SUICIDE:
-		marker: blue
+		marker: deathSuicide
 		terminatesSequence: yes
 	TRAP_ACTIVATED:
-		marker: violet
+		marker: trapActivation
 		terminatesSequence: no
 	PLACED:
 		marker: violet
@@ -137,8 +151,8 @@ events:
 		marker: grey
 		terminatesSequence: no
 	CONNECTED:
-		marker: green
+		marker: connect
 		terminatesSequence: no
 	DISCONNECTED:
-		marker: orange
+		marker: disconnect
 		terminatesSequence: yes

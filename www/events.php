@@ -2,6 +2,7 @@
 
 use Nette\Utils\DateTime;
 
+/** @var \Nette\Utils\ArrayHash $service */
 /** @var \App\Control\EventParser $EventParser */
 require_once __DIR__ . '/../bootstrap.php';
 
@@ -15,21 +16,21 @@ try
 	$timeFrom = reset($events)['event_time'];
 	$timeFilterFrom = null;
 	if ($timeFrom)
-		$timeFilterFrom = $timeFrom + (300 - $timeFrom % 300);
+		$timeFilterFrom = $timeFrom + ($service->limits->filters->timeIntervals - $timeFrom % $service->limits->filters->timeIntervals);
 
 	$timeTo = end($events)['event_time'];
 	$timeFilterTo = null;
 	if ($timeTo)
-		$timeFilterTo = $timeTo - ($timeTo % 300);
+		$timeFilterTo = $timeTo - ($timeTo % $service->limits->filters->timeIntervals);
 
 	$timeFilter = [];
 	if ($timeFilterFrom && $timeFilterTo)
 	{
-		$timeFilterKeys = range($timeFilterFrom, $timeFilterTo, 300);
-		$timeFilter[$timeFrom - 1] = "First event";
+		$timeFilterKeys = range($timeFilterFrom, $timeFilterTo, $service->limits->filters->timeIntervals);
+		$timeFilter[$timeFrom - 1] = "From first event";
 		foreach ($timeFilterKeys as $timestamp)
 			$timeFilter[$timestamp] = DateTime::from($timestamp)->format('d-m-Y H:i');
-		$timeFilter[$timeTo + 1] = "Last event";
+		$timeFilter[$timeTo + 1] = "To last event";
 	}
 
 	$result = [
