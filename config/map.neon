@@ -12,16 +12,20 @@ settings:
 		zoom: 2
 		crs: Simple # Don't change. It will break the map.
 	dimensions:
+		# Internal Leaflet.js dimensions.
 		leafletMap:
 			width: 256
 			height: 256
+		# Real map dimensions.
 		referenceMap:
 			width: 15927.0  #15360.0
 			height: 15928.0 #15360.0
 
 # https://leafletjs.com/reference-1.4.0.html#control-layers
 baseLayers:
+	# Layer name - will be displayed in layer controls.
 	Top:
+		# URL used as source of tiles. Absolute/Relative path is accepted.
 		source: 'https://maps.izurvive.com/maps/CH-Top/1.11.7/tiles/{z}/{x}/{y}.png'
 		# Available options: https://leafletjs.com/reference-1.4.0.html#tilelayer
 		options:
@@ -70,7 +74,7 @@ markers:
 # Event display settings
 events:
 	KILLED_BY_PLAYER:
-		# Marker shown on map. Identifier
+		# Marker shown on map. Identifier specified in 'markers' section in this config.
 		marker: red
 		# When visually connecting events, this event will cause existing
 		# sequence to end.
@@ -81,9 +85,11 @@ events:
 			# Available options: https://leafletjs.com/reference-1.4.0.html#path
 			options:
 				color: '#ff0000'
-				weight: 1.75
+				weight: 2
 				opacity: 0.8
-			# Position mapping
+				dashArray: 5
+			# Position attribute mapping. Uses keys as subobjects of event's data.
+			# killer: position = { ..., killer: { ..., position: { x: ..., y: ..., z: ... } } }
 			targets:
 				killer: position
 	KILLED_PLAYER:
@@ -92,8 +98,9 @@ events:
 		lineTo:
 			options:
 				color: '#ff0000'
-				weight: 1.75
+				weight: 2
 				opacity: 0.8
+				dashArray: 5
 			targets:
 				victim: position
 	KILLED_BY_CAR:

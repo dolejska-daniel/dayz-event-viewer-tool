@@ -1,4 +1,4 @@
-{layout @layout.latte}
+{layout ../@layout.latte}
 
 {block content}
 	<div id="map"></div>
@@ -188,7 +188,10 @@
 				else
 					$opt.removeAttr("disabled");
 			});
-			setUrlParam('time_from', $this.val());
+			if ($this.val() == time_from_default)
+				setUrlParam('time_from', null);
+			else
+				setUrlParam('time_from', $this.val());
 			filterEvents();
 			displayEvents();
 		});
@@ -204,7 +207,10 @@
 				else
 					$opt.removeAttr("disabled");
 			});
-			setUrlParam('time_to', $this.val());
+			if ($this.val() == time_to_default)
+				setUrlParam('time_to', null);
+			else
+				setUrlParam('time_to', $this.val());
 			filterEvents();
 			displayEvents();
 		});
@@ -586,8 +592,8 @@
 				var tooltipContent = "";
 				var popupContent = "";
 
-				tooltipContent = e.event_time + ": <b>" + e.event_data.name + "</b>";
-				popupContent = "<h6>" + e.event_type + " <small>" + e.event_time + "<a href='javascript:setTimeFilter(" + e.event_time_numeric + ", 15);'>&plusmn;15m</a></small></h6>";
+				tooltipContent = e.event_data.datetime + ": <b>" + e.event_data.name + "</b>";
+				popupContent = "<h6>" + e.event_type + " <small>" + e.event_data.datetime + "<a href='javascript:setTimeFilter(" + e.event_time_numeric + ", 15);'>&plusmn;15m</a></small></h6>";
 				popupContent += "<b>" + e.event_data.name + "</b> (<a href=\"https://steamcommunity.com/profiles/" + e.event_data.steamid64 + "/\" target=\"_blank\">Steam profile</a>, <small><a href='javascript:$(\"#steamid\").val(\"" + e.event_data.steamid64  + "\").keyup();'>filtr</a></small>)";
 				popupContent += "<br><pre class='mt-2'>" + JSON.stringify(e.event_data, null, 2) + "</pre>";
 
@@ -596,6 +602,14 @@
 				{
 					markerType = markerTypes[settings.marker]
 				}
+
+				{if $service->debug}
+				if (e.debug)
+				{
+					{* Debug information is present *}
+					popupContent += "<b>DEBUG</b> Matched from: <code>" + e.debug.match + "</code>";
+				}
+				{/if}
 
 				{if $service->limits->extensions->visuals}
 				if ($("#connectEvents:checked").val()) {

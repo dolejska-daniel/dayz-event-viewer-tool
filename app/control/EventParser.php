@@ -4,6 +4,7 @@ namespace App\Control;
 
 
 use Nette\Utils\ArrayHash;
+use Nette\Utils\DateTime;
 
 class EventParser
 {
@@ -38,6 +39,7 @@ class EventParser
 
 			preg_match_all($this->serviceConfig->regex->attribute_entry, $matches['attrs'][$eventId], $attrs);
 			$attrs = array_combine($attrs['keys'], $attrs['values']);
+			$attrs['datetime'] = DateTime::from($timestamp)->format('d-m H:i:s');
 
 			$skipEvent = false;
 			foreach ($attrs as $key => $value)
