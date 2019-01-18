@@ -63,14 +63,18 @@ class EventParser
 				$key_real = end($key_array);
 
 				// Attribute whitelist filter
-				if ($attrWhitelist && !isset($attrWhitelist[$key_real]))
+				if ($attrWhitelist
+					&& !isset($attrWhitelist[$key_real])
+					&& !isset($attrWhitelist[$key]))
 				{
 					unset($attrs[$key]);
 					continue;
 				}
 
 				// Attribute blacklist filter
-				if ($attrBlacklist && isset($attrBlacklist[$key_real]))
+				if ($attrBlacklist
+					&& isset($attrBlacklist[$key_real])
+					&& isset($attrBlacklist[$key]))
 				{
 					unset($attrs[$key]);
 					continue;
