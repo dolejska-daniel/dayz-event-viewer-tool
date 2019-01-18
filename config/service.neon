@@ -55,7 +55,11 @@ limits:
 		#	- CONNECTED
 
 behaviour:
-	# selectable, preselected, group, all
+	# Specifies how is server going to be selected/provided to the application.
+	# 	- selectable	one server selected by user from any availabe
+	#	- preselected	one/more servers selected by this file (aggregated if selected > 1)
+	#	- group			all servers from specified group by this file (aggregated)
+	#	- all			all available servers (aggregated)
 	server: selectable
 	# if all: null
 	# if selectable: null
@@ -66,7 +70,12 @@ behaviour:
 	# 	- {SERVER_ID}
 	# if group: {GROUP_NAME}
 	serverSelection: null
-	# selectable, preselected, today, time, all
+	# Specifies how is log file going to be selected/provided to the application.
+	# 	- selectable	one file selected by user from any availabe
+	# 	- preselected	one/more servers selected by this file (aggregated if selected > 1)
+	# 	- today			all files (even partially) containing today's log entries (aggregated)
+	# 	- time			all files (even partially) containing log entries with acceptable timestamp (aggregated)
+	# 	- all			all available files (aggregated)
 	log: selectable
 	# if all: null
 	# if selectable: null
