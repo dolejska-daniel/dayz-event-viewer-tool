@@ -33,11 +33,11 @@ This file contains configuration mainly for Leaflet.js library and event visuals
 
 | Entry           | Description
 |-----------------|-------------
-| `settings`      | 
-| `baseLayers`    | Specifications
-| `ovarlayLayers` |
-| `markers`       |
-| `events`        |
+| `settings`      | Default map instance settings, dimensions, …
+| `baseLayers`    | Specifications of map tiles.
+| `ovarlayLayers` | Specifications of map tile overlay layers.
+| `markers`       | Map marker type specifications (icons, colors, …).
+| `events`        | Display settings for each specified event. Marker mapping and other configuration.
 
 More details can be found inside the file.
 All the important config entries are commented and explained.
