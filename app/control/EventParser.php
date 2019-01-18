@@ -94,6 +94,10 @@ class EventParser
 				'event_type' => $type,
 				'event_data' => $attrs,
 			];
+			if ($this->serviceConfig->debug)
+			{
+				$event['debug']['match'] = $eventEntry;
+			}
 
 			$this->postprocessEvent($events, $event);
 			$events[] = $event;

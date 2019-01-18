@@ -1,95 +1,31 @@
-#
+##
 # Service configuration file
-#
+##
 
+# Allow debug mode. More about debug mode in README file.
+debug: yes
+
+# Regular expressions for log parsing and formatting
 regex:
-	# Single log entry after preprocess routines
+	# Single log entry after preprocess routines.
 	log_entry: '/(?<timestamp>[0-9]{10}) \| \[DAYZ-SA\] (?<event>[A-Z\_]+):(?<attrs>.+)/'
-	# Log entry attributes
-	attribute_entry: '/(\s(?<keys>[\_a-z0-9]+)=\"(?<values>.+?)\")/'
-	# Attribute group delimiter string. Converts 'group1_group2_key' to
-	# group1:
-	#   group2:
-	#     key: value
+	# Log entry attribute.
+	# Requires two arrays in matches: 'keys' and 'values'.
+	attribute_entry: '/(\s(?<keys>[\_a-z0-9]+)=\"(?<values>.*?)\")/'
+	# Attribute group delimiter string. Converts 'group1_group2_key' key to object:
+	# { group1: { group2: { key: value } } }
 	attribute_group_delimiter: '_'
-	# Special attribute regexes. System will use all non-numeric keys found in matches.
+	# Special attribute regexes.
+	# System will use all non-numeric keys found in matches as its new value.
 	# {key}: {regex}
 	attributes:
 		# position="<7743.427246, -118.704254, 12632.520508>"
 		#	to
-		# position:
-		#   x: {value}
-		#   y: {value}
-		#   z: {value}
+		# { position: { x: 7743.427246, y: -118.704254, z: 12632.520508 } }
 		position: '<(?<x>[\-0-9.]+), (?<y>[\-0-9.]+), (?<z>[\-0-9.]+)>'
 
-events:
-	KILLED_BY_PLAYER:
-		# Marker type shown on map
-		marker: red
-		# When visually connecting events, this event will cause existing
-		# sequence to end.
-		terminatesSequence: yes
-		# When visually connecting events, this option will cause displaying
-		# lines to specified locations.
-		lineTo:
-			options:
-				color: '#ff0000'
-				weight: 1.75
-				opacity: 0.8
-			targets:
-				killer: position
-	KILLED_PLAYER:
-		marker: red
-		terminatesSequence: no
-		lineTo:
-			options:
-				color: '#ff0000'
-				weight: 1.75
-				opacity: 0.8
-			targets:
-				victim: position
-	KILLED_BY_CAR:
-		marker: red
-		terminatesSequence: yes
-	KILLED_BY_LANDMINETRAP:
-		marker: red
-		terminatesSequence: yes
-	KILLED_BY_ZOMBIE:
-		marker: red
-		terminatesSequence: yes
-	SUICIDE:
-		marker: blue
-		terminatesSequence: yes
-	TRAP_ACTIVATED:
-		marker: violet
-		terminatesSequence: no
-	PLACED:
-		marker: violet
-		terminatesSequence: no
-	VEHICLE_ENTER:
-		marker: violet
-		terminatesSequence: no
-	VEHICLE_LEFT:
-		marker: violet
-		terminatesSequence: no
-	VEHICLE_DRIVER_ENTER:
-		marker: violet
-		terminatesSequence: no
-	VEHICLE_DRIVER_LEFT:
-		marker: violet
-		terminatesSequence: no
-	PLAYER_POSITION:
-		marker: grey
-		terminatesSequence: no
-	CONNECTED:
-		marker: green
-		terminatesSequence: no
-	DISCONNECTED:
-		marker: orange
-		terminatesSequence: yes
-
 limits:
+	# Fontend limits
 	filters:
 		# SteamID filter shown?
 		steamid: yes
@@ -97,6 +33,7 @@ limits:
 		time: yes
 		# Event type filters shown?
 		type: yes
+	# Fontend limits
 	extensions:
 		# Extended visual options shown?
 		visuals: yes
@@ -108,6 +45,7 @@ limits:
 		stats: yes
 		# Status bar shown?
 		status: yes
+	# Backend limits
 	events:
 		# List of event types allowed to be displayed
 		whitelist:
@@ -132,15 +70,15 @@ behaviour:
 	log: selectable
 	# if all: null
 	# if selectable: null
-	# if preselected: {LOGFILE_REL_PATH}
+	# if preselected: {FILENAME}
 	#	or
 	# if preselected:
-	# 	- {LOGFILE_REL_PATH}
-	# 	- {LOGFILE_REL_PATH}
+	# 	- {FILENAME}
+	# 	- {FILENAME}
 	# if today: null
 	# if time: {INTERVAL (5 hours, 2 days, ...)}
 	logSelection: null
-	# Maximum amount of time to keep cached log valid.
+	# Maximum amount of time to keep cached logs valid.
 	cacheInterval: 6 hours
 	# Array of regular expressions which will force matching log files not to be cached.
 	dontCache:

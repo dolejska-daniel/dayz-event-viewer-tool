@@ -1,6 +1,6 @@
-#
-# Service configuration file
-#
+##
+# Map configuration file
+##
 
 settings:
 	defaults:
@@ -10,11 +10,20 @@ settings:
 		minZoom: 1
 		maxZoom: 12
 		zoom: 2
-		crs: Simple
+		crs: Simple # Don't change. It will break the map.
+	dimensions:
+		leafletMap:
+			width: 256
+			height: 256
+		referenceMap:
+			width: 15927.0  #15360.0
+			height: 15928.0 #15360.0
 
+# https://leafletjs.com/reference-1.4.0.html#control-layers
 baseLayers:
 	Top:
 		source: 'https://maps.izurvive.com/maps/CH-Top/1.11.7/tiles/{z}/{x}/{y}.png'
+		# Available options: https://leafletjs.com/reference-1.4.0.html#tilelayer
 		options:
 			attribution: 'Map data &copy; <a href=\"https://www.izurvive.com/\">iZurvive</a>; Event processor &copy; <a href=\"https://dayz-sa.cz/\">DayZ-SA.cz</a>, Daniel Dolejška'
 			bounds: [[0, 0], [256, 256]]
@@ -34,5 +43,95 @@ baseLayers:
 			noWrap: true
 			tms: true
 
+# TODO: Map overlay layers not yet implemented
+# https://leafletjs.com/reference-1.4.0.html#control-layers
 overlayLayers:
 
+# Marker types
+markers:
+	# Available options: https://leafletjs.com/reference-1.4.0.html#icon
+	blue:
+		iconUrl: https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png
+	red:
+		iconUrl: https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png
+	green:
+		iconUrl: https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png
+	yellow:
+		iconUrl: https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png
+	orange:
+		iconUrl: https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png
+	violet:
+		iconUrl: https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png
+	grey:
+		iconUrl: https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png
+	black:
+		iconUrl: https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png
+
+# Event display settings
+events:
+	KILLED_BY_PLAYER:
+		# Marker shown on map. Identifier
+		marker: red
+		# When visually connecting events, this event will cause existing
+		# sequence to end.
+		terminatesSequence: yes
+		# When visually connecting events, this option will cause displaying
+		# lines to specified locations.
+		lineTo:
+			# Available options: https://leafletjs.com/reference-1.4.0.html#path
+			options:
+				color: '#ff0000'
+				weight: 1.75
+				opacity: 0.8
+			# Position mapping
+			targets:
+				killer: position
+	KILLED_PLAYER:
+		marker: red
+		terminatesSequence: no
+		lineTo:
+			options:
+				color: '#ff0000'
+				weight: 1.75
+				opacity: 0.8
+			targets:
+				victim: position
+	KILLED_BY_CAR:
+		marker: red
+		terminatesSequence: yes
+	KILLED_BY_LANDMINETRAP:
+		marker: red
+		terminatesSequence: yes
+	KILLED_BY_ZOMBIE:
+		marker: red
+		terminatesSequence: yes
+	SUICIDE:
+		marker: blue
+		terminatesSequence: yes
+	TRAP_ACTIVATED:
+		marker: violet
+		terminatesSequence: no
+	PLACED:
+		marker: violet
+		terminatesSequence: no
+	VEHICLE_ENTER:
+		marker: violet
+		terminatesSequence: no
+	VEHICLE_LEFT:
+		marker: violet
+		terminatesSequence: no
+	VEHICLE_DRIVER_ENTER:
+		marker: violet
+		terminatesSequence: no
+	VEHICLE_DRIVER_LEFT:
+		marker: violet
+		terminatesSequence: no
+	PLAYER_POSITION:
+		marker: grey
+		terminatesSequence: no
+	CONNECTED:
+		marker: green
+		terminatesSequence: no
+	DISCONNECTED:
+		marker: orange
+		terminatesSequence: yes

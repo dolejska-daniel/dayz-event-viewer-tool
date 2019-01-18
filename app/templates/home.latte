@@ -255,55 +255,27 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.js" integrity="sha256-6BZRSENq3kxI4YYBDqJ23xg0r1GwTHEpvp3okdaIqBw=" crossorigin="anonymous"></script>
 	<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js" crossorigin="anonymous"></script>
 	<script type="text/javascript">
-		//15360x15360m
-		//je to 2048*7,5m
-		/*
-		var width = 15360.0,
-			height = 15360.0;
-			*/
-		var width = 15927.0,
-			height = 15928.0;
+		var width = {$map->settings->dimensions->referenceMap->width},
+			height = {$map->settings->dimensions->referenceMap->height};
 
-		var mapWidth = 256,
-			mapHeight = 256;
+		var mapWidth = {$map->settings->dimensions->leafletMap->width},
+			mapHeight = {$map->settings->dimensions->leafletMap->height};
 
-		var eventSettings = JSON.parse({json_encode($service->events)});
+		var eventSettings = JSON.parse({json_encode($map->events)});
 
 		// https://github.com/pointhi/leaflet-color-markers
-		var pinDefaults = {
+		var markerTypeDefaults = {
 			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
 			shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
 			iconSize: [25, 41],
 			iconAnchor: [12, 41],
 			popupAnchor: [1, -34],
-			shadowSize: [41, 41]
+			shadowSize: [41, 41],
 		};
-		var pins = {};
-		pins['blue'] = new L.Icon(Object.assign(pinDefaults, {
-			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-			shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-		}));
-		pins['red'] = new L.Icon(Object.assign(pinDefaults, {
-			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-		}));
-		pins['green'] = new L.Icon(Object.assign(pinDefaults, {
-			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-		}));
-		pins['yellow'] = new L.Icon(Object.assign(pinDefaults, {
-			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png',
-		}));
-		pins['orange'] = new L.Icon(Object.assign(pinDefaults, {
-			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
-		}));
-		pins['violet'] = new L.Icon(Object.assign(pinDefaults, {
-			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png',
-		}));
-		pins['grey'] = new L.Icon(Object.assign(pinDefaults, {
-			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png',
-		}));
-		pins['black'] = new L.Icon(Object.assign(pinDefaults, {
-			iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png',
-		}));
+		var markerTypes = {};
+		{foreach $map->markers as $markerId => $markerOptions}
+		markerTypes[{$markerId}] = new L.Icon(Object.assign(markerTypeDefaults, JSON.parse({json_encode($markerOptions)})));
+		{/foreach}
 
 		var baseLayers = {};
 		{foreach $map->baseLayers as $id => $baseLayer}
@@ -330,10 +302,12 @@
 			//L.marker(event.latlng).addTo(map);
 		});
 
+		// Zoom, move
 		map.on("zoomend moveend", function (event) {
 			setUrlParam('map_zoom', map.getZoom());
 			var c = map.getCenter();
-			setUrlParam('map_coords', JSON.stringify([c.lat, c.lng]));
+			setUrlParam('map_x', c.lat);
+			setUrlParam('map_y', c.lng);
 		});
 
 		function getXY(latLng) {
@@ -354,35 +328,7 @@
 			return new L.LatLng(lat, lng, z);
 		}
 
-		function timeToInts(secs)
-		{
-			return [
-				Math.floor(secs / 3600) % 24,
-				Math.floor((secs % 3600) / 60),
-				Math.floor((secs % 3600) % 60),
-			];
-		}
-
-		function intsToTime(ints)
-		{
-			return ints[0] * 3600 + ints[1] * 60 + ints[2];
-		}
-
-		function timeToString(secs)
-		{
-			var x = timeToInts(secs);
-			var H = x[0].toString();
-			var i = x[1].toString();
-			var s = x[2].toString();
-			if (H.length === 1)
-				H = "0" + H;
-			if (i.length === 1)
-				i = "0" + i;
-			if (s.length === 1)
-				s = "0" + s;
-			return H + ":" + i + ":" + s;
-		}
-
+		// +-15m filter
 		function setTimeFilter(from, min_diff) {
 			var low = from - min_diff * 60;
 			low = Math.floor(low / 300) * 300;
@@ -456,6 +402,16 @@
 						latLngs.push(getLatLng(z.bounds[i][0], z.bounds[i][1], 0));
 
 					var polygon = L.polygon(latLngs, z.options);
+
+					var tooltipContent = z.tooltip.content || zoneName;
+					polygon.bindTooltip(tooltipContent);
+
+					var popupContent = z.popup.content;
+					if (popupContent)
+					{
+						polygon.bindPopup(popupContent);
+					}
+
 					polygon.addTo(map);
 					zonePolygons.push(polygon);
 				}
@@ -466,7 +422,6 @@
 		var events = [];
 		var visibleEvents = [];
 		var eventTypes = [];
-
 		function loadEvents() {
 			showStatusMessage("Loading events...");
 			eventTypes = [];
@@ -480,7 +435,7 @@
 				$( "#time-to" ).removeAttr("disabled");
 				$( "#steamid" ).removeAttr("disabled");
 
-			{if $service->limits->filters->type}
+				{if $service->limits->filters->type}
 				for (var i = 0; i < events.length; i++) {
 					var e = events[i];
 					eventTypes[e.event_type] = e.event_type;
@@ -497,7 +452,7 @@
 
 				if (event_types)
 					$eventTypes.val(event_types).change();
-			{/if}
+				{/if}
 
 				time_from_default = result.time.first - 1;
 				time_to_default = result.time.last + 1;
@@ -627,7 +582,7 @@
 					continue;
 				}
 
-				var pin = pins['blue'];
+				var markerType = markerTypes['blue'];
 				var tooltipContent = "";
 				var popupContent = "";
 
@@ -639,7 +594,7 @@
 				var settings = eventSettings[e.event_type];
 				if (settings)
 				{
-					pin = pins[settings.marker]
+					markerType = markerTypes[settings.marker]
 				}
 
 				{if $service->limits->extensions->visuals}
@@ -675,7 +630,7 @@
 
 				var marker = L.marker(getLatLng(e.event_data.position.x, e.event_data.position.z, e.event_data.position.y), {
 					//title: e.event_type,
-					icon: pin,
+					icon: markerType,
 				});
 
 				marker.bindTooltip(tooltipContent);
@@ -773,7 +728,7 @@
 			});
 
 			{if isset($_GET['map_x']) && isset($_GET['map_y'])}
-			map.flyTo(JSON.parse({$_GET['map_coords']}), parseInt({@$_GET['map_zoom']}));
+			map.flyTo([ {$_GET['map_x']}, {$_GET['map_y']} ], parseInt({@$_GET['map_zoom']}));
 			{/if}
 		});
 	</script>

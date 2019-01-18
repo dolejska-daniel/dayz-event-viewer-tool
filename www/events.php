@@ -1,14 +1,16 @@
 <?php
 
 use Nette\Utils\DateTime;
-use Nette\Utils\Json;
 
 /** @var \App\Control\EventParser $EventParser */
 require_once __DIR__ . '/../bootstrap.php';
 
+$serverId = $_GET['server'];
+$filename = $_GET['file'];
+
 try
 {
-	$events = $EventParser->getEvents($_GET['server'], $_GET['file']);
+	$events = $EventParser->getEvents($serverId, $filename);
 
 	$timeFrom = reset($events)['event_time'];
 	$timeFilterFrom = null;
@@ -30,7 +32,7 @@ try
 		$timeFilter[$timeTo + 1] = "Last event";
 	}
 
-	echo Json::encode([
+	$result = [
 		'time' => [
 			'first' => $timeFrom,
 			'from'  => $timeFrom
@@ -43,14 +45,12 @@ try
 			'filter' => $timeFilter,
 		],
 		'events' => $events,
-	]/*, Json::PRETTY*/);
+	];
+
+	json_setData($result);
 }
 catch (\Throwable $ex)
 {
-	echo json_encode([
-		'error' => true,
-		'message' => $ex->getMessage(),
-		'code' => $ex->getCode(),
-	]);
+	json_setError($ex->getMessage(), $ex->getCode());
 }
-die();
+json_finish();

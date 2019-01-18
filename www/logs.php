@@ -1,7 +1,5 @@
 <?php
 
-use Nette\Utils\Json;
-
 /** @var \App\Control\ServerSources $ServerSources */
 require_once __DIR__ . '/../bootstrap.php';
 
@@ -17,17 +15,15 @@ try
 	foreach ($logFiles as $filepath => $file)
 		$files[$filepath] = $file['name'];
 
-	echo Json::encode([
+	$result = [
 		'server' => $server,
 		'files' => $files,
-	]/*, Json::PRETTY*/);
+	];
+
+	json_setData($result);
 }
 catch (\Throwable $ex)
 {
-	echo json_encode([
-		'error' => true,
-		'message' => $ex->getMessage(),
-		'code' => $ex->getCode(),
-	]);
+	json_setError($ex->getMessage(), $ex->getCode());
 }
-die();
+json_finish();
