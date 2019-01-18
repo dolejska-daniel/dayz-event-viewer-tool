@@ -10,6 +10,14 @@
           <option name="port" value="69" />
         </fileTransfer>
       </webServer>
+      <webServer id="7002ef1d-5527-48e7-ae84-6e903b2ad49f" name="map.dayz-sa.cz" url="https://map.dayz-sa.cz/">
+        <fileTransfer host="srv01.korensky.me" port="21">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="21" />
+        </fileTransfer>
+      </webServer>
     </option>
   </component>
 </project>

@@ -589,27 +589,12 @@
 				}
 
 				var markerType = markerTypes['blue'];
-				var tooltipContent = "";
-				var popupContent = "";
-
-				tooltipContent = e.event_data.datetime + ": <b>" + e.event_data.name + "</b>";
-				popupContent = "<h6>" + e.event_type + " <small>" + e.event_data.datetime + "<a href='javascript:setTimeFilter(" + e.event_time_numeric + ", 15);'>&plusmn;15m</a></small></h6>";
-				popupContent += "<b>" + e.event_data.name + "</b> (<a href=\"https://steamcommunity.com/profiles/" + e.event_data.steamid64 + "/\" target=\"_blank\">Steam profile</a>, <small><a href='javascript:$(\"#steamid\").val(\"" + e.event_data.steamid64  + "\").keyup();'>filtr</a></small>)";
-				popupContent += "<br><pre class='mt-2'>" + JSON.stringify(e.event_data, null, 2) + "</pre>";
 
 				var settings = eventSettings[e.event_type];
 				if (settings)
 				{
 					markerType = markerTypes[settings.marker]
 				}
-
-				{if $service->debug}
-				if (e.debug)
-				{
-					{* Debug information is present *}
-					popupContent += "<b>DEBUG</b> Matched from: <code>" + e.debug.match + "</code>";
-				}
-				{/if}
 
 				{if $service->limits->extensions->visuals}
 				if ($("#connectEvents:checked").val()) {
@@ -647,8 +632,77 @@
 					icon: markerType,
 				});
 
+				{if $service->limits->tooltips->enabled}
+				var tooltipContent = "";
+				{if $service->limits->tooltips->datetime}
+				{* datetime *}
+				tooltipContent+= e.event_data.datetime;
+				{/if}
+				{if $service->limits->tooltips->name}
+				{if $service->limits->tooltips->datetime}
+				{* datetime and name separator *}
+				tooltipContent+= ": ";
+				{/if}
+				{* name *}
+				tooltipContent+= "<b>" + e.event_data.name + "</b>";
+				{/if}
 				marker.bindTooltip(tooltipContent);
+				{/if}
+
+				{if $service->limits->popups->enabled}
+				var popupContent = "";
+
+				popupContent+= "<div>";
+				{if $service->limits->popups->type}
+				popupContent+= "<h6>" + e.event_type;
+				{/if}
+				{if $service->limits->popups->datetime}
+				popupContent+= " <small>" + e.event_data.datetime + "</small>";
+				{if $service->limits->filters->time}
+				popupContent+= "<small><a href='javascript:setTimeFilter(" + e.event_time + ", 15);'>&plusmn;15m</a></small>";
+				{/if}
+				{/if}
+				{if $service->limits->popups->type}
+				popupContent+= "</h6>";
+				{/if}
+				popupContent+= "</div>";
+
+				popupContent+= "<div>";
+				{if $service->limits->popups->name}
+				popupContent+= "<b>" + e.event_data.name + "</b>";
+				{/if}
+				{if $service->limits->popups->steamProfile}
+				{if $service->limits->popups->name}
+				popupContent+= " (";
+				{/if}
+				if (e.event_data.steamid64)
+				{
+					popupContent+= "<a href=\"https://steamcommunity.com/profiles/" + e.event_data.steamid64 + "/\" target=\"_blank\">Steam profile</a>";
+					{if $service->limits->filters->steamid}
+					popupContent+= ", <small><a href='javascript:$(\"#steamid\").val(\"" + e.event_data.steamid64  + "\").keyup();'>filtr</a></small>";
+					{/if}
+				}
+				{if $service->limits->popups->name}
+				popupContent+= ")";
+				{/if}
+				{/if}
+				popupContent+= "</div>";
+
+				{if $service->limits->popups->json}
+				popupContent += "<pre class='mt-2'>" + JSON.stringify(e.event_data, null, 2) + "</pre>";
+				{/if}
+
+				{if $service->debug}
+				if (e.debug)
+				{
+					{* Debug information is present *}
+					popupContent += "<div><b>DEBUG</b> Matched from: <code>" + e.debug.match + "</code></div>";
+				}
+				{/if}
+
 				marker.bindPopup(popupContent);
+				{/if}
+
 				clusterGroup.addLayer(marker);
 				//marker.addTo(clusterGroup);
 

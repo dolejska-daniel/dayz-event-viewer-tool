@@ -45,6 +45,28 @@ limits:
 		stats: yes
 		# Status bar shown?
 		status: yes
+	# Frontend limits
+	popups:
+		# Should event popups be available?
+		enabled: yes
+		# Should event type be displayed in the popups?
+		type: yes
+		# Should date and time be displayed in the popups?
+		datetime: yes
+		# Should name be displayed in the popups?
+		name: yes
+		# Should steam profile link be displayed in the popups?
+		steamProfile: yes
+		# Should all data be displayed as JSON in the popups?
+		json: yes
+	# Frontend limits
+	tooltips:
+		# Should event tooltips be available?
+		enabled: yes
+		# Should date and time be displayed in the tooltips?
+		datetime: yes
+		# Should name be displayed in the tooltips?
+		name: yes
 	# Backend limits
 	events:
 		# List of event types allowed to be displayed
@@ -53,6 +75,13 @@ limits:
 		# List of event types forbidden from being displayed
 		blacklist:
 		#	- CONNECTED
+	attributes:
+		# List of event attributes allowed to be displayed
+		whitelist:
+		#	- steamid64
+		# List of event attributes forbidden from being displayed
+		blacklist:
+		#	- steamid64
 
 behaviour:
 	# Specifies how is server going to be selected/provided to the application.

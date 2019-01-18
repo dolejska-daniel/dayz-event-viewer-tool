@@ -41,6 +41,9 @@ class EventParser
 			$attrs = array_combine($attrs['keys'], $attrs['values']);
 			$attrs['datetime'] = DateTime::from($timestamp)->format('d-m H:i:s');
 
+			$attrWhitelist = array_flip((array)$this->serviceConfig->limits->attributes->whitelist);
+			$attrBlacklist = array_flip((array)$this->serviceConfig->limits->attributes->blacklist);
+
 			$skipEvent = false;
 			foreach ($attrs as $key => $value)
 			{
@@ -58,6 +61,20 @@ class EventParser
 				// Create array of group keys
 				$key_array = explode($this->serviceConfig->regex->attribute_group_delimiter, $key);
 				$key_real = end($key_array);
+
+				// Attribute whitelist filter
+				if ($attrWhitelist && !isset($attrWhitelist[$key_real]))
+				{
+					unset($attrs[$key]);
+					continue;
+				}
+
+				// Attribute blacklist filter
+				if ($attrBlacklist && isset($attrBlacklist[$key_real]))
+				{
+					unset($attrs[$key]);
+					continue;
+				}
 
 				// Process complex attributes (Eg. position)
 				if (isset($this->serviceConfig->regex->attributes[$key_real]))
@@ -105,16 +122,16 @@ class EventParser
 			$events[] = $event;
 		}
 
+		$typeWhitelist = array_flip((array)$this->serviceConfig->limits->events->whitelist);
+		$typeBlacklist = array_flip((array)$this->serviceConfig->limits->events->blacklist);
 		foreach ($events as $eventId => $event)
 		{
 			// Whitelist filter
-			if ($this->serviceConfig->limits->events->whitelist
-				&& !in_array($event['event_type'], (array)$this->serviceConfig->limits->events->whitelist))
+			if ($typeWhitelist && !isset($typeWhitelist[$event['event_type']]))
 				unset($events[$eventId]);
 
 			// Blacklist filter
-			if ($this->serviceConfig->limits->events->blacklist
-				&& in_array($event['event_type'], (array)$this->serviceConfig->limits->events->blacklist))
+			if ($typeBlacklist && isset($typeBlacklist[$event['event_type']]))
 				unset($events[$eventId]);
 		}
 
