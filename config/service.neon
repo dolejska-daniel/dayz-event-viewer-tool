@@ -31,6 +31,8 @@ limits:
 		steamid: yes
 		# Time filters shown?
 		time: yes
+		# Time filter interval length
+		timeIntervals: 300
 		# Event type filters shown?
 		type: yes
 	# Fontend limits

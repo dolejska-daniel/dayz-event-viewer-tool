@@ -35,7 +35,7 @@
 						<td id="event-count">0</td>
 					</tr>
 					<tr>
-						<th class="pr-2">Event count <small><abbr title="Filtered">F</abbr></small></th>
+						<th class="pr-2">Visible events</th>
 						<td id="event-count-filtered">0</td>
 					</tr>
 					<tr>
@@ -471,8 +471,11 @@
 		function filterEvents() {
 			showStatusMessage("Filtering events...");
 			visibleEvents = [];
-			for (var i = 0; i < events.length; i++) {
-				var e = events[i];
+			for (var eventId in events) {
+				if (!events.hasOwnProperty(eventId))
+					continue;
+
+				var e = events[eventId];
 
 			{if $service->limits->filters->type}
 				// Event type filters
