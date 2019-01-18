@@ -73,8 +73,8 @@ class EventParser
 
 				// Attribute blacklist filter
 				if ($attrBlacklist
-					&& isset($attrBlacklist[$key_real])
-					&& isset($attrBlacklist[$key]))
+					&& (isset($attrBlacklist[$key_real])
+						|| isset($attrBlacklist[$key])))
 				{
 					unset($attrs[$key]);
 					continue;
