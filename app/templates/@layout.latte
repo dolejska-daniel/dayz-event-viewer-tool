@@ -1,18 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" prefix="og: http://ogp.me/ns#">
 <head>
-	<title>{ifset title}{include title|stripHtml} :: {/ifset}DayZ-SA.cz :: ServerLog Map Tool</title>
+	<title>{ifset title}{include title|stripHtml} - {elseifset $title}{$title} - {/ifset}{$service->meta->siteName}</title>
 
 	<meta charset="utf-8">
-	<meta name="description" content="">
 	<meta name="author" content="Daniel Dolejška">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="{$service->meta->description}">
+	<meta name="keywords" content="{$service->meta->keywords}">
 
-	<meta property="og:title" content="Executor - DayZ-SA.cz :: Event Viewer Tool" />
-	<meta property="og:image" content="https://map.dayz-sa.cz/executor/images/thumbnail.jpg" />
-	<meta property="og:image:type" content="image/jpeg" />
-	<meta property="og:image:width" content="1280" />
-	<meta property="og:image:height" content="670" />
+
+	<meta property="og:url" content="{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}">
+	<meta property="og:type" content="{$service->meta->type}">
+	<meta property="og:title" content="{ifset title}{include title|stripHtml} - {elseifset $title}{$title} - {/ifset}{$service->meta->siteName}">
+	<meta property="og:description" content="{$service->meta->description}">
+	{foreach $service->meta->images as $url => $info}
+	<meta property="og:image" content="{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}{$url}">
+	<meta property="og:image:secure_url" content="https://{$_SERVER['HTTP_HOST']}{$url}">
+	<meta property="og:image:type" content="{$info['type']}">
+	<meta property="og:image:width" content="{$info['width']}">
+	<meta property="og:image:height" content="{$info['height']}">
+	{/foreach}
+	<meta property="fb:app_id" content="{$service->meta->facebook->app_id}" n:if="$service->meta->facebook->app_id">
+	<meta property="fb:pages" content="{implode(',', (array)$service->meta->facebook->page_ids)}" n:if="(array)$service->meta->facebook->page_ids">
+	<meta property="fb:admins" content="{implode(',', (array)$service->meta->facebook->admins)}" n:if="(array)$service->meta->facebook->admins">
 
 	<!-- // CSS & META \\ -->
 	<link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">

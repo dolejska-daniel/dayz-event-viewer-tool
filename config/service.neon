@@ -5,6 +5,31 @@
 # Allow debug mode. More about debug mode in README file.
 debug: yes
 
+# Basic public site information
+meta:
+	# Site name displayed in page title and when sharing a link
+	siteName: 'DayZ-SA.cz :: Event Viewer Tool'
+	# Website description
+	description:
+	# Website keywords
+	keywords:
+	# OGP Type
+	type: website
+	# Thumbnail image
+	images:
+		# Absolute path to domain root
+		/executor/images/thumbnail.jpg:
+			type: image/jpeg
+			width: 1280
+			height: 670
+	# Special Facebook OGP properties
+	facebook:
+		app_id: 921262951242998
+		page_ids:
+			- 1486103288331802
+		admins:
+			- 100000571403482
+
 # Regular expressions for log parsing and formatting
 regex:
 	# Single log entry after preprocess routines.
