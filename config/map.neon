@@ -39,7 +39,7 @@ baseLayers:
 	Satellite:
 		source: 'https://maps.izurvive.com/maps/CH-Sat/1.11.7/tiles/{z}/{x}/{y}.png'
 		options:
-			attribution: 'Map data &copy; <a href=\"https://www.izurvive.com/\">iZurvive</a>; Event viewer &copy; <a href=\"https://dayz-sa.cz/\">DayZ-SA.cz</a>, Daniel Dolejška'
+			attribution: 'Map data &copy; <a href="https://www.izurvive.com/">iZurvive</a>; Event viewer &copy; <a href="https://dayz-sa.cz/">DayZ-SA.cz</a>, Daniel Dolejška'
 			bounds: [[0, 0], [256, 256]]
 			minNativeZoom: 1
 			maxNativeZoom: 7
@@ -70,6 +70,10 @@ markers:
 		iconUrl: https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png
 	black:
 		iconUrl: https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png
+	death:
+		iconUrl: images/death.png
+	deathAnimal:
+		iconUrl: images/death_animal.png
 	deathCar:
 		iconUrl: images/death_car.png
 	deathExplosion:
@@ -78,8 +82,18 @@ markers:
 		iconUrl: images/death_suicide.png
 	deathZombie:
 		iconUrl: images/death_zombie.png
+	killer:
+		iconUrl: images/killer.png
+	placement:
+		iconUrl: images/placement.png
+	position:
+		iconUrl: images/position.png
 	trapActivation:
 		iconUrl: images/trap_activation.png
+	vehicleEnter:
+		iconUrl: images/vehicle_enter.png
+	vehicleExit:
+		iconUrl: images/vehicle_exit.png
 	connect:
 		iconUrl: images/connect.png
 	disconnect:
@@ -89,7 +103,7 @@ markers:
 events:
 	KILLED_BY_PLAYER:
 		# Marker shown on map. Identifier specified in 'markers' section in this config.
-		marker: red
+		marker: death
 		# When visually connecting events, this event will cause existing
 		# sequence to end.
 		terminatesSequence: yes
@@ -107,7 +121,7 @@ events:
 			targets:
 				killer: position
 	KILLED_PLAYER:
-		marker: red
+		marker: killer
 		terminatesSequence: no
 		lineTo:
 			options:
@@ -133,22 +147,22 @@ events:
 		marker: trapActivation
 		terminatesSequence: no
 	PLACED:
-		marker: violet
+		marker: placement
 		terminatesSequence: no
 	VEHICLE_ENTER:
-		marker: violet
+		marker: vehicleEnter
 		terminatesSequence: no
 	VEHICLE_LEFT:
-		marker: violet
+		marker: vehicleExit
 		terminatesSequence: no
 	VEHICLE_DRIVER_ENTER:
-		marker: violet
+		marker: vehicleEnter
 		terminatesSequence: no
 	VEHICLE_DRIVER_LEFT:
-		marker: violet
+		marker: vehicleExit
 		terminatesSequence: no
 	PLAYER_POSITION:
-		marker: grey
+		marker: position
 		terminatesSequence: no
 	CONNECTED:
 		marker: connect

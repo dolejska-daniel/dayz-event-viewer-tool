@@ -75,12 +75,15 @@ class ServerSources
 					continue;
 
 			// String array key fix
-			foreach ($config->map->zones as $zone)
+			if ($config->map->zones)
 			{
-				$bounds = $zone->bounds;
-				$zone->bounds = [];
-				foreach ($bounds as $bound)
-					$zone->bounds[] = array_values((array)$bound);
+				foreach ($config->map->zones as $zone)
+				{
+					$bounds = $zone->bounds;
+					$zone->bounds = [];
+					foreach ($bounds as $bound)
+						$zone->bounds[] = array_values((array)$bound);
+				}
 			}
 
 			// Save processed servers

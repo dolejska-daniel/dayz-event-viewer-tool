@@ -337,10 +337,10 @@
 		// +-15m filter
 		function setTimeFilter(from, min_diff) {
 			var low = from - min_diff * 60;
-			low = Math.floor(low / {$service->limits->filter->timeIntervals}) * {$service->limits->filter->timeIntervals};
+			low = Math.floor(low / {$service->limits->filters->timeIntervals}) * {$service->limits->filters->timeIntervals};
 
 			var high = from + min_diff * 60;
-			high = Math.ceil(high / {$service->limits->filter->timeIntervals}) * {$service->limits->filter->timeIntervals};
+			high = Math.ceil(high / {$service->limits->filters->timeIntervals}) * {$service->limits->filters->timeIntervals};
 
 			$( "#time-from" ).val(low || time_from_default).change();
 			$( "#time-to" ).val(high || time_to_default).change();

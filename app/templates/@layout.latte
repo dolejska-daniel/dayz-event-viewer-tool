@@ -38,8 +38,10 @@
 <!-- \\ HEADER // -->
 
 <!-- // CONTENT \\ -->
-<div id="alerts" n:class="$_embed ? container-fluid : container">
+<div id="alerts" n:class="container">
+	{ifset $flashes}
 	<div n:foreach="$flashes as $flash" n:class='alert, "alert-$flash->type", alert-dismissible, fade, show'>{$flash->message}<button type="button" class="close" data-dismiss="alert" aria-label="Zavřít"><span aria-hidden="true">&times;</span></button></div>
+	{/ifset}
 </div>
 {include content}
 <!-- \\ CONTENT // -->
