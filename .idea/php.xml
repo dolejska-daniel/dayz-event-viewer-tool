@@ -13,6 +13,9 @@
       <path value="$PROJECT_DIR$/vendor/sabre/xml" />
       <path value="$PROJECT_DIR$/vendor/psr/log" />
       <path value="$PROJECT_DIR$/vendor/latte/latte" />
+      <path value="$PROJECT_DIR$/vendor/nette/http" />
+      <path value="$PROJECT_DIR$/vendor/ehesp/steam-login" />
+      <path value="$PROJECT_DIR$/vendor/koraktor/steam-condenser" />
     </include_path>
   </component>
   <component name="PhpInterpreters">

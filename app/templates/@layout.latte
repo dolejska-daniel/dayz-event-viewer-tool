@@ -44,6 +44,49 @@
 	{/ifset}
 </div>
 {include content}
+
+<div class="modal fade" tabindex="-1" role="dialog" id="steam-login-force">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Steam Sign-in Required</h5>
+			</div>
+			<div class="modal-body">
+				<p>Please sign in with your Steam account to continue.</p>
+				<p n:ifcontent>{$service->steam->login->dialogContent|noescape}</p>
+				<div class="text-center">
+					<a href="{$Steam->_loginUrl}">
+						<img alt="Sign in" src="https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_02.png">
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="steam-login-prompt">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Steam Sign-in</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<p>Please sign in with your Steam account.</p>
+				<div class="text-center">
+					<a href="{$Steam->_loginUrl}">
+						<img alt="Sign in" src="https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_02.png">
+					</a>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
 <!-- \\ CONTENT // -->
 
 <!-- // FOOTER \\ -->
@@ -53,7 +96,21 @@
 <!-- // JS \\ -->
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
 {block scripts}{/block}
+<script type="text/javascript">
+	$(function () {
+		{if $service->steam->login->enabled && $service->steam->login->force}
+		$( "#steam-login-force" ).modal({
+			backdrop: 'static',
+			keyboard: false,
+		});
+		{elseif $service->steam->login->enabled && $service->steam->login->prompt}
+		{* TODO: Save to session, don't spam the dialog. *}
+		$( "#steam-login-prompt" ).modal('show');
+		{/if}
+	});
+</script>
 <!-- \\ JS // -->
 </body>
 </html>

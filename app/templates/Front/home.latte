@@ -11,6 +11,30 @@
 			</div>
 		</div>
 		<div class="leaflet-top leaflet-right" id="controls-right" style="padding-top: 40px">
+			<div class="leaflet-control leaflet-control-custom rounded" n:if="$service->steam->login->enabled && $service->limits->extensions->steamAccount">
+				<div n:if="$Steam->id">
+					<table>
+						<tr>
+							<td>
+								<img class="rounded-circle" src="{$Steam->avatar_icon}" alt="{$Steam->nickname}'s Avatar">
+							</td>
+							<td class="pl-1 pr-2">
+								{$Steam->nickname}
+							</td>
+							<td class="pl-1">
+								<a class="btn btn-sm btn-warning" href="?action=steamlogout" title="Sign out">
+									<i class="fa fa-sign-out-alt"></i>
+								</a>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<div n:if="!$Steam->id">
+					<a href="{$Steam->_loginUrl}">
+						<img alt="Sign in" src="https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_02.png">
+					</a>
+				</div>
+			</div>
 			<select class="leaflet-control form-control" id="server" n:if="$service->limits->extensions->server">
 				<option selected disabled>-- Select Server --</option>
 			</select>
@@ -364,7 +388,7 @@
 		}
 
 		function loadLogfiles() {
-			$.get("logs.php", { server: server }).done(function (data) {
+			$.get({$service->endpoints->logs}, { server: server }).done(function (data) {
 				var logs = JSON.parse(data);
 				var $group = $( "#log-group" ).attr("label", logs.server.name).html("");
 				for (var fileid in logs.files)
@@ -395,7 +419,7 @@
 			}
 			zonePolygons = [];
 
-			$.get("zones.php", { server: server }).done(function (data) {
+			$.get({$service->endpoints->zones}, { server: server }).done(function (data) {
 				var result = JSON.parse(data);
 				for (var zoneName in result.zones)
 				{
@@ -431,7 +455,7 @@
 		function loadEvents() {
 			showStatusMessage("Loading events...");
 			eventTypes = [];
-			$.get("events.php", { server: server, file: log }).done(function (data) {
+			$.get({$service->endpoints->events}, { server: server, file: log }).done(function (data) {
 				var result = JSON.parse(data);
 				events = result.events;
 				$( "#event-count" ).text(events.length);
@@ -767,7 +791,7 @@
 
 		$(function() {
 			showStatusMessage("Loading available server list...");
-			$.get("servers.php").done(function (data) {
+			$.get({$service->endpoints->servers}).done(function (data) {
 				var servers = JSON.parse(data);
 
 				{if $service->limits->extensions->server}

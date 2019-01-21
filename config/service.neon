@@ -30,6 +30,21 @@ meta:
 		admins:
 			- 100000571403482
 
+# Steam service extension configuration
+steam:
+	# Settings for Steam login
+	login:
+		# Can users log-in with Steam account?
+		enabled: yes
+		# Shoul they be prompted to log-in?
+		prompt: yes
+		# Defines interval between log-in prompts
+		promptInterval: 86400
+		# Shoul user be forced to log-in before being able to use the map?
+		force: no
+		# Content of prompt/forced prompt dialog
+		dialogContent: ''
+
 # Regular expressions for log parsing and formatting
 regex:
 	# Single log entry after preprocess routines.
@@ -72,6 +87,8 @@ limits:
 		stats: yes
 		# Status bar shown?
 		status: yes
+		# Steam sign in button shown?
+		steamAccount: yes
 	# Frontend limits
 	popups:
 		# Should event popups be available?
@@ -148,3 +165,10 @@ behaviour:
 	# Array of regular expressions which will force matching log files not to be cached.
 	dontCache:
 		- '/DayZServer_x64.ADM/'
+
+# Application's endpoint specification
+endpoints:
+	servers: 'index.php?action=servers'
+	logs: 'index.php?action=logs'
+	zones: 'index.php?action=zones'
+	events: 'index.php?action=events'

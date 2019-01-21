@@ -1,5 +1,5 @@
 # DayZ-SA.cz's ServerLog Map Tool
-> Version v1.0
+> Version v1.1
 
 
 ## Installation
@@ -49,6 +49,8 @@ It can be used to turn this admin interface into publicly usable display of sele
 | Entry       | Description
 |-------------|-------------
 | `debug`     | When allowed, app will provide useful debug information (somewhere).
+| `meta`      | Contains general website settings - site name, description, keywords, etc.
+| `steam`     | Allows configuration of Steam profile login.
 | `regex`     | Specifications of server log format.
 | `limits`    | Used to apply limitations to app frontend and/or backend. Allows event filtering and enabling/disabling UI elements. 
 | `behaviour` | Used for server/log selection forcing/aggregation. Aggregation configuration is not available through web UI. 

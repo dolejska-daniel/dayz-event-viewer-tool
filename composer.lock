@@ -4,9 +4,96 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0ea00dd78496ceeec8dbd964ecbfaa6a",
-    "content-hash": "ace66ac1cc559632f7b561416be5952e",
+    "content-hash": "7bf3a76719fe92446835c55c72795bd6",
     "packages": [
+        {
+            "name": "ehesp/steam-login",
+            "version": "1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Ehesp/Steam-Login.git",
+                "reference": "f7dd893ef2089ec51cd962c68ecba869be2f7e09"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Ehesp/Steam-Login/zipball/f7dd893ef2089ec51cd962c68ecba869be2f7e09",
+                "reference": "f7dd893ef2089ec51cd962c68ecba869be2f7e09",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "suggest": {
+                "koraktor/steam-condenser": "Library for querying the Steam Community, Source and GoldSrc game servers as well as the Steam master servers."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Ehesp\\SteamLogin": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Elliot Hesp",
+                    "email": "elliot.hesp@gmail.com"
+                }
+            ],
+            "description": "A simple PHP Steam login and validation package",
+            "keywords": [
+                "steam"
+            ],
+            "time": "2018-04-06T07:13:23+00:00"
+        },
+        {
+            "name": "koraktor/steam-condenser",
+            "version": "1.3.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/koraktor/steam-condenser-php.git",
+                "reference": "a75269e9ff9444d3bf1dfd49a0dfe072316373e6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/koraktor/steam-condenser-php/zipball/a75269e9ff9444d3bf1dfd49a0dfe072316373e6",
+                "reference": "a75269e9ff9444d3bf1dfd49a0dfe072316373e6",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.0.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~3.7.0"
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "include-path": [
+                "lib/"
+            ],
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Sebastian Staudt",
+                    "email": "koraktor@gmail.com"
+                }
+            ],
+            "description": "The Steam Condenser is a library for querying the Steam Community, Source and GoldSrc game servers",
+            "homepage": "http://koraktor.de/steam-condenser",
+            "keywords": [
+                "community",
+                "goldsrc",
+                "query",
+                "source",
+                "steam",
+                "webapi"
+            ],
+            "time": "2015-03-19T09:43:24+00:00"
+        },
         {
             "name": "latte/latte",
             "version": "v2.4.8",
@@ -77,7 +164,79 @@
                 "template",
                 "twig"
             ],
-            "time": "2018-06-03 17:34:15"
+            "time": "2018-06-03T17:34:15+00:00"
+        },
+        {
+            "name": "nette/http",
+            "version": "v2.4.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nette/http.git",
+                "reference": "a36e6bad0aae8bacf849c150b5e0ecacef0d9eca"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nette/http/zipball/a36e6bad0aae8bacf849c150b5e0ecacef0d9eca",
+                "reference": "a36e6bad0aae8bacf849c150b5e0ecacef0d9eca",
+                "shasum": ""
+            },
+            "require": {
+                "nette/utils": "^2.4 || ~3.0.0",
+                "php": ">=5.6.0"
+            },
+            "conflict": {
+                "nette/nette": "<2.2"
+            },
+            "require-dev": {
+                "nette/di": "^2.4.8 || ~3.0.0",
+                "nette/tester": "^2.0",
+                "tracy/tracy": "^2.4"
+            },
+            "suggest": {
+                "ext-fileinfo": "to detect type of uploaded files",
+                "nette/security": "allows use Nette\\Http\\UserStorage"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.4-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause",
+                "GPL-2.0",
+                "GPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "David Grudl",
+                    "homepage": "https://davidgrudl.com"
+                },
+                {
+                    "name": "Nette Community",
+                    "homepage": "https://nette.org/contributors"
+                }
+            ],
+            "description": "🌐 Nette Http: abstraction for HTTP request, response and session. Provides careful data sanitization and utility for URL and cookies manipulation.",
+            "homepage": "https://nette.org",
+            "keywords": [
+                "cookies",
+                "http",
+                "nette",
+                "proxy",
+                "request",
+                "response",
+                "security",
+                "session",
+                "url"
+            ],
+            "time": "2018-09-03T19:16:55+00:00"
         },
         {
             "name": "nette/neon",
@@ -138,7 +297,7 @@
                 "nette",
                 "yaml"
             ],
-            "time": "2018-03-21 12:12:21"
+            "time": "2018-03-21T12:12:21+00:00"
         },
         {
             "name": "nette/utils",
@@ -220,7 +379,7 @@
                 "utility",
                 "validation"
             ],
-            "time": "2018-09-18 10:22:16"
+            "time": "2018-09-18T10:22:16+00:00"
         },
         {
             "name": "psr/log",
@@ -267,7 +426,7 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2018-11-20 15:27:04"
+            "time": "2018-11-20T15:27:04+00:00"
         },
         {
             "name": "sabre/dav",
@@ -350,7 +509,7 @@
                 "framework",
                 "iCalendar"
             ],
-            "time": "2018-10-19 09:58:27"
+            "time": "2018-10-19T09:58:27+00:00"
         },
         {
             "name": "sabre/event",
@@ -407,7 +566,7 @@
                 "promise",
                 "signal"
             ],
-            "time": "2015-11-05 20:14:39"
+            "time": "2015-11-05T20:14:39+00:00"
         },
         {
             "name": "sabre/http",
@@ -463,7 +622,7 @@
             "keywords": [
                 "http"
             ],
-            "time": "2018-02-23 11:10:29"
+            "time": "2018-02-23T11:10:29+00:00"
         },
         {
             "name": "sabre/uri",
@@ -514,7 +673,7 @@
                 "uri",
                 "url"
             ],
-            "time": "2017-02-20 19:59:28"
+            "time": "2017-02-20T19:59:28+00:00"
         },
         {
             "name": "sabre/vobject",
@@ -611,7 +770,7 @@
                 "xCal",
                 "xCard"
             ],
-            "time": "2018-04-20 07:22:50"
+            "time": "2018-04-20T07:22:50+00:00"
         },
         {
             "name": "sabre/xml",
@@ -674,7 +833,7 @@
                 "dom",
                 "xml"
             ],
-            "time": "2019-01-09 13:51:57"
+            "time": "2019-01-09T13:51:57+00:00"
         }
     ],
     "packages-dev": [],
