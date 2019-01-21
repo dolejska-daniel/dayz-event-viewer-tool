@@ -22,7 +22,7 @@
 								{$Steam->nickname}
 							</td>
 							<td class="pl-1">
-								<a class="btn btn-sm btn-warning" href="?action=steamlogout" title="Sign out">
+								<a class="btn btn-sm btn-warning" href="javascript:redirectToAction('steamlogout');" title="Sign out">
 									<i class="fa fa-sign-out-alt"></i>
 								</a>
 							</td>
@@ -30,7 +30,7 @@
 					</table>
 				</div>
 				<div n:if="!$Steam->id">
-					<a href="{$Steam->_loginUrl}">
+					<a href="javascript:redirectToAction('steamlogin-init');">
 						<img alt="Sign in" src="https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_02.png">
 					</a>
 				</div>
@@ -180,7 +180,12 @@
 			var $this = $( this );
 			server = $this.val();
 			setUrlParam('server', $this.val());
+			{if $service->limits->extensions->log}
 			loadLogfiles();
+			{else}
+			loadZones();
+			loadEvents();
+			{/if}
 		});
 
 		var log = {@$_GET['log']};
@@ -280,6 +285,12 @@
 				$statusBar.hide().html("");
 			}, timeout || 3000);
 			{/if}
+		}
+
+		function redirectToAction( action ) {
+			const searchParams = new URLSearchParams(window.location.search);
+			searchParams.set('action', action);
+			window.location.href = window.location.origin + window.location.pathname + "?" + searchParams.toString();
 		}
 	</script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.js" integrity="sha256-6BZRSENq3kxI4YYBDqJ23xg0r1GwTHEpvp3okdaIqBw=" crossorigin="anonymous"></script>

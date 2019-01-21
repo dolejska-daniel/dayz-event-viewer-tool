@@ -7,8 +7,8 @@ use Nette\Utils\DateTime;
 /** @var \Nette\Http\Request $httpRequest */
 require_once __DIR__ . "/../bootstrap.php";
 
-$serverId = $_GET['server'];
-$filename = $_GET['file'];
+$serverId = $httpRequest->getQuery('server');
+$filename = $httpRequest->getQuery('file');
 
 switch ($httpRequest->getQuery('action', 'Front/Home'))
 {

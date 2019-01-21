@@ -3,21 +3,25 @@
 namespace App\Control;
 
 
+use Nette\Http\Session;
 use Nette\Utils\ArrayHash;
-use Nette\Utils\DateTime;
 
 class LogLoader
 {
+	/** @var Session $session */
+	public $session;
+
 	/** @var ArrayHash $serviceConfig */
-	protected $serviceConfig;
+	public $serviceConfig;
 
 	/** @var ServerSources $serverSources */
 	protected $serverSources;
 
-	public function __construct( ArrayHash $serviceConfig, ServerSources $serverSources )
+	public function __construct( ServerSources $serverSources )
 	{
-		$this->serviceConfig = $serviceConfig;
 		$this->serverSources = $serverSources;
+		$this->serviceConfig = $serverSources->serviceConfig;
+		$this->session = $serverSources->session;
 	}
 
 	protected function loadContents( $serverId = null, $logFile = null ): string

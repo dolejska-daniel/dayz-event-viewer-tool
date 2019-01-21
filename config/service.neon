@@ -12,7 +12,7 @@ meta:
 	# Website description
 	description:
 	# Website keywords
-	keywords:
+	keywords: 'dayz,dayz standalone,dayz-sa.cz,executor,map,interactive map,kill,feed,live,log,history'
 	# OGP Type
 	type: website
 	# Thumbnail image
@@ -35,15 +35,19 @@ steam:
 	# Settings for Steam login
 	login:
 		# Can users log-in with Steam account?
+		sessionName: SteamAccount
+		# Can users log-in with Steam account?
 		enabled: yes
 		# Shoul they be prompted to log-in?
-		prompt: yes
+		prompt: no
 		# Defines interval between log-in prompts
 		promptInterval: 86400
 		# Shoul user be forced to log-in before being able to use the map?
 		force: no
 		# Content of prompt/forced prompt dialog
 		dialogContent: ''
+		# After login display only player's events
+		showOnlyPlayerEvents: yes
 
 # Regular expressions for log parsing and formatting
 regex:

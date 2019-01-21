@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="Kaidou Ren" uploadOnCheckin="6b0ef615-f252-4888-88e0-7c0287c19f1f">
+  <component name="PublishConfigData" autoUpload="Always" serverName="Kaidou Ren">
     <serverData>
       <paths name="FIT :: Eva SFTP">
         <serverdata>
@@ -49,11 +49,12 @@
           <mappings>
             <mapping deploy="/public_html/admin" local="$PROJECT_DIR$" web="/admin" />
             <mapping deploy="/public_html/donor" local="$PROJECT_DIR$" web="/donor" />
+            <mapping deploy="/public_html/executor" local="$PROJECT_DIR$" web="/executor" />
+            <mapping deploy="/public_html/aiypwzqp" local="$PROJECT_DIR$" web="/aiypwzqp" />
           </mappings>
         </serverdata>
       </paths>
     </serverData>
-    <option name="myUploadOnCheckinName" value="Kaidou-Ren" />
     <option name="myAutoUpload" value="ALWAYS" />
   </component>
 </project>

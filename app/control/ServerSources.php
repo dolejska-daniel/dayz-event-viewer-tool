@@ -3,6 +3,7 @@
 namespace App\Control;
 
 
+use Nette\Http\Session;
 use Nette\Neon\Neon;
 use Nette\Utils\ArrayHash;
 use Nette\Utils\DateTime;
@@ -10,6 +11,12 @@ use Sabre\DAV\Client;
 
 class ServerSources
 {
+	/** @var Session $session */
+	public $session;
+
+	/** @var ArrayHash $serviceConfig */
+	public $serviceConfig;
+
 	/** @var array $serverData */
 	protected $serverData;
 
@@ -19,12 +26,11 @@ class ServerSources
 	/** @var array $logData */
 	protected $logData;
 
-	/** @var ArrayHash $serviceConfig */
-	protected $serviceConfig;
-
-	public function __construct( ArrayHash $serviceConfig )
+	public function __construct( Session $session, ArrayHash $serviceConfig )
 	{
 		$this->serviceConfig = $serviceConfig;
+		$this->session = $session;
+
 		$this->loadServers();
 	}
 
@@ -223,7 +229,7 @@ class ServerSources
 			$contents = $this->preprocessLogFile($data['body']);
 			if ($cache && $filepathCached)
 			{
-				mkdir(dirname($filepathCached), 0755, true);
+				@mkdir(dirname($filepathCached), 0755, true);
 				file_put_contents($filepathCached, $contents);
 			}
 			return $contents;

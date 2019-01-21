@@ -94,6 +94,10 @@ markers:
 		iconUrl: images/vehicle_enter.png
 	vehicleExit:
 		iconUrl: images/vehicle_exit.png
+	hit:
+		iconUrl: images/wound_hit.png
+	shot:
+		iconUrl: images/wound_shot.png
 	connect:
 		iconUrl: images/connect.png
 	disconnect:

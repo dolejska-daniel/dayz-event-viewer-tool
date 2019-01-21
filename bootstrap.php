@@ -17,6 +17,7 @@ use Nette\Utils\Json;
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/vendor/koraktor/steam-condenser/lib/steam-condenser.php';
 
+
 //=============================================================dd==
 // CONSTANT DEFINITIONS
 //=============================================================dd==
@@ -24,6 +25,28 @@ require_once __DIR__ . '/vendor/koraktor/steam-condenser/lib/steam-condenser.php
 define('WEBROOT', realpath(__DIR__));
 define('CACHEDIR', realpath(WEBROOT . "/cache"));
 define('TEMPLATEDIR', realpath(WEBROOT . "/app/templates"));
+
+
+//=============================================================dd==
+// SYSTEM CONFIGURATION
+//=============================================================dd==
+
+// System configuration file
+/** @var ArrayHash $service */
+$service = ArrayHash::from(Neon::decode(file_get_contents(__DIR__ . "/config/service.neon")));
+
+// Map configuration file
+/** @var ArrayHash $map */
+$map = ArrayHash::from(Neon::decode(file_get_contents(__DIR__ . "/config/map.neon")));
+// String array key fix
+foreach ($map->baseLayers as $layer)
+{
+	$bounds = $layer->options->bounds;
+	$layer->options->bounds = [];
+	foreach ($bounds as $bound)
+		$layer->options->bounds[] = array_values((array)$bound);
+}
+$map->settings->options->center = array_values((array)$map->settings->options->center);
 
 
 //=============================================================dd==
@@ -46,18 +69,10 @@ $session->setSavePath(CACHEDIR . "/session");
 
 /** @var SessionSection $Steam */
 global $Steam;
-$Steam = $session->getSection('steam');
+$Steam = $session->getSection($service->steam->login->sessionName);
 if (!isset($Steam['id']))
 	$Steam->id = 0;
 
-
-//=============================================================dd==
-// SYSTEM CONFIGURATION
-//=============================================================dd==
-
-// System configuration file
-/** @var ArrayHash $service */
-$service = ArrayHash::from(Neon::decode(file_get_contents(__DIR__ . "/config/service.neon")));
 // Steam login prompt timing
 if ($Steam->_loginPrompt)
 {
@@ -69,34 +84,17 @@ elseif ($service->steam->login->prompt)
 	$Steam->setExpiration($service->steam->login->promptInterval, '_loginPrompt');
 }
 
-// Map configuration file
-/** @var ArrayHash $map */
-$map = ArrayHash::from(Neon::decode(file_get_contents(__DIR__ . "/config/map.neon")));
-// String array key fix
-foreach ($map->baseLayers as $layer)
-{
-	$bounds = $layer->options->bounds;
-	$layer->options->bounds = [];
-	foreach ($bounds as $bound)
-		$layer->options->bounds[] = array_values((array)$bound);
-}
-$map->settings->options->center = array_values((array)$map->settings->options->center);
-
 
 //=============================================================dd==
 // CONTROL CLASSES INITIALIZATION
 //=============================================================dd==
 
-/** @var SteamLogin $SteamLogin */
-$SteamLogin = new SteamLogin();
-$Steam->_loginUrl = $SteamLogin->url($httpRequest->getUrl()->getBaseUrl() . "?action=steamlogin");
-
 /** @var ServerSources $ServerSources */
-$ServerSources = new ServerSources($service);
+$ServerSources = new ServerSources($session, $service);
 /** @var LogLoader $LogLoader */
-$LogLoader = new LogLoader($service, $ServerSources);
+$LogLoader = new LogLoader($ServerSources);
 /** @var EventParser $EventParser */
-$EventParser = new EventParser($service, $LogLoader);
+$EventParser = new EventParser($LogLoader);
 
 /** @var Engine $Latte */
 global $Latte;
@@ -108,11 +106,20 @@ $Latte->setTempDirectory(CACHEDIR . "/latte");
 // GLOBAL ACTION PROCESS
 //=============================================================dd==
 
-if ($httpRequest->getQuery('action') === 'steamlogin'
+if ($httpRequest->getQuery('action') === 'steamlogin-init'
+	&& @$service->steam->login->enabled)
+{
+	$SteamLogin = new SteamLogin();
+	$returnUrl = $httpRequest->getUrl()->setQueryParameter('action', 'steamlogin');
+	$loginUrl = $SteamLogin->url((string)$returnUrl);
+	$httpResponse->redirect($loginUrl);
+}
+elseif ($httpRequest->getQuery('action') === 'steamlogin'
 	&& @$service->steam->login->enabled)
 {
 	try
 	{
+		$SteamLogin = new SteamLogin();
 		$steamid64 = $SteamLogin->validate();
 
 		if ($steamid64)
@@ -130,12 +137,24 @@ if ($httpRequest->getQuery('action') === 'steamlogin'
 	{
 
 	}
-	$httpResponse->redirect($httpRequest->getUrl()->getBaseUrl());
+
+	$redirectUrl = $httpRequest->getUrl();
+	$query = [];
+	foreach ($redirectUrl->getQueryParameters() as $parameter => $value)
+		if (strpos($parameter, 'openid') === false && strpos($parameter, 'action') === false)
+			$query[$parameter] = $value;
+	$httpResponse->redirect($redirectUrl->setQuery($query));
 }
 elseif ($httpRequest->getQuery('action') === 'steamlogout')
 {
 	$Steam->setExpiration(-3600);
-	$httpResponse->redirect($httpRequest->getUrl()->getBaseUrl());
+
+	$redirectUrl = $httpRequest->getUrl();
+	$query = [];
+	foreach ($redirectUrl->getQueryParameters() as $parameter => $value)
+		if (strpos($parameter, 'action') === false)
+			$query[$parameter] = $value;
+	$httpResponse->redirect($redirectUrl->setQuery($query));
 }
 
 //=============================================================dd==

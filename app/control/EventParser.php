@@ -3,21 +3,26 @@
 namespace App\Control;
 
 
+use Nette\Http\Session;
 use Nette\Utils\ArrayHash;
 use Nette\Utils\DateTime;
 
 class EventParser
 {
+	/** @var Session $session */
+	public $session;
+
 	/** @var ArrayHash $serviceConfig */
-	protected $serviceConfig;
+	public $serviceConfig;
 
 	/** @var LogLoader $logLoader */
 	protected $logLoader;
 
-	public function __construct( ArrayHash $serviceConfig, LogLoader $logLoader )
+	public function __construct( LogLoader $logLoader )
 	{
-		$this->serviceConfig = $serviceConfig;
 		$this->logLoader = $logLoader;
+		$this->serviceConfig = $logLoader->serviceConfig;
+		$this->session = $logLoader->session;
 	}
 
 	/**
@@ -137,6 +142,19 @@ class EventParser
 			// Blacklist filter
 			if ($typeBlacklist && isset($typeBlacklist[$event['event_type']]))
 				unset($events[$eventId]);
+
+			// Steam Account filter
+			if ($this->serviceConfig->steam->login->enabled
+				&& $this->serviceConfig->steam->login->showOnlyPlayerEvents)
+			{
+				$steamAccount = $this->session->getSection($this->serviceConfig->steam->login->sessionName);
+				if ($steamAccount->id)
+				{
+					// User is logged in
+					if ($event['event_data']['steamid64'] != $steamAccount->id)
+						unset($events[$eventId]);
+				}
+			}
 		}
 
 		return array_values($events);
