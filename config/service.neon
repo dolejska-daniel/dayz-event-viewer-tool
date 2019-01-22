@@ -48,6 +48,33 @@ steam:
 		dialogContent: ''
 		# After login display only player's events
 		showOnlyPlayerEvents: yes
+		# How should map be limited while user is logged in?
+		limits:
+			# What should be done with the whitelist array?
+			# 	- union 		will be added to existing one from limits section
+			#	- intersection  only entries "in common" will be used
+			#	- override		this array overrides existing one from limits section
+			whitelistOperation: union
+			# What should be done with the blacklist array?
+			# 	- union 		will be added to existing one from limits section
+			#	- intersection  only entries "in common" will be used
+			#	- override		this array overrides existing one from limits section
+			blacklistOperation: union
+			# Backend limits
+			events:
+				# List of event types allowed to be displayed
+				whitelist:
+				#	- CONNECTED
+				# List of event types forbidden from being displayed
+				blacklist:
+				#	- CONNECTED
+			attributes:
+				# List of event attributes allowed to be displayed
+				whitelist:
+				#	- steamid64
+				# List of event attributes forbidden from being displayed
+				blacklist:
+				#	- steamid64
 
 # Regular expressions for log parsing and formatting
 regex:
@@ -139,13 +166,13 @@ behaviour:
 	#	- all			all available servers (aggregated)
 	server: selectable
 	# if all: null
-	# if selectable: null
-	# if preselected: {SERVER_ID}
+	# if selectable: [DEFAULT SERVER_ID]
+	# if preselected: <SERVER_ID>
 	# 	or
 	# if preselected:
-	# 	- {SERVER_ID}
-	# 	- {SERVER_ID}
-	# if group: {GROUP_NAME}
+	# 	- <SERVER_ID>
+	# 	- <SERVER_ID>
+	# if group: <GROUP_NAME>
 	serverSelection: null
 	# Specifies how is log file going to be selected/provided to the application.
 	# 	- selectable	one file selected by user from any availabe

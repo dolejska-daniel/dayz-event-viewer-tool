@@ -73,6 +73,11 @@ $Steam = $session->getSection($service->steam->login->sessionName);
 if (!isset($Steam['id']))
 	$Steam->id = 0;
 
+
+//=============================================================dd==
+// CONFIGURATION MODIFICATIONS
+//=============================================================dd==
+
 // Steam login prompt timing
 if ($Steam->_loginPrompt)
 {
@@ -82,6 +87,87 @@ elseif ($service->steam->login->prompt)
 {
 	$Steam->_loginPrompt = true;
 	$Steam->setExpiration($service->steam->login->promptInterval, '_loginPrompt');
+}
+
+if ($service->steam->login->enabled
+	&& $Steam->id)
+{
+	// Steam login is enabled and currently used
+	// Whitelist setup
+	switch ($service->steam->login->limits->whitelistOperation)
+	{
+		case 'override':
+		{
+			$service->limits->events->whitelist = $service->steam->login->limits->events->whitelist;
+			$service->limits->attributes->whitelist = $service->steam->login->limits->attributes->whitelist;
+			break;
+		}
+
+		case 'intersection':
+		{
+			$service->limits->events->whitelist = array_intersect(
+				$service->limits->events->whitelist,
+				$service->steam->login->limits->events->whitelist
+			);
+			$service->limits->attributes->whitelist = array_intersect(
+				$service->limits->attributes->whitelist,
+				$service->steam->login->limits->attributes->whitelist
+			);
+			break;
+		}
+
+		default:
+		case 'union':
+		{
+			$service->limits->events->whitelist = array_merge(
+				$service->limits->events->whitelist,
+				$service->steam->login->limits->events->whitelist
+			);
+			$service->limits->attributes->whitelist = array_merge(
+				$service->limits->attributes->whitelist,
+				$service->steam->login->limits->attributes->whitelist
+			);
+			break;
+		}
+	}
+
+	// Blacklist setup
+	switch ($service->steam->login->limits->blacklistOperation)
+	{
+		case 'override':
+		{
+			$service->limits->events->blacklist = $service->steam->login->limits->events->blacklist;
+			$service->limits->attributes->blacklist = $service->steam->login->limits->attributes->blacklist;
+			break;
+		}
+
+		case 'intersection':
+		{
+			$service->limits->events->blacklist = array_intersect(
+				$service->limits->events->blacklist,
+				$service->steam->login->limits->events->blacklist
+			);
+			$service->limits->attributes->blacklist = array_intersect(
+				$service->limits->attributes->blacklist,
+				$service->steam->login->limits->attributes->blacklist
+			);
+			break;
+		}
+
+		default:
+		case 'union':
+		{
+			$service->limits->events->blacklist = array_merge(
+				$service->limits->events->blacklist,
+				$service->steam->login->limits->events->blacklist
+			);
+			$service->limits->attributes->blacklist = array_merge(
+				$service->limits->attributes->blacklist,
+				$service->steam->login->limits->attributes->blacklist
+			);
+			break;
+		}
+	}
 }
 
 
@@ -155,6 +241,16 @@ elseif ($httpRequest->getQuery('action') === 'steamlogout')
 		if (strpos($parameter, 'action') === false)
 			$query[$parameter] = $value;
 	$httpResponse->redirect($redirectUrl->setQuery($query));
+}
+else
+{
+	if ($service->behaviour->server === 'selectable'
+		&& $service->behaviour->serverSelection
+		&& !$httpRequest->getQuery('server'))
+	{
+		$redirectUrl = $httpRequest->getUrl();
+		$httpResponse->redirect($redirectUrl->setQueryParameter('server', $service->behaviour->serverSelection));
+	}
 }
 
 //=============================================================dd==
