@@ -52,7 +52,7 @@ class ServerSources
 					$selection = [$selection];
 
 				foreach ($selection as $serverId)
-					$serverConfigPaths[] = WEBROOT . "/config/servers/{$serverId}.neon";
+					$serverConfigPaths[] = CFGDIR . "/servers/{$serverId}.neon";
 				break;
 			}
 
@@ -63,7 +63,7 @@ class ServerSources
 				// Servers will be filtered when loaded
 			default:
 			{
-				$serverConfigPaths = glob(WEBROOT . "/config/servers/*.neon");
+				$serverConfigPaths = glob(CFGDIR . "/servers/*.neon");
 				break;
 			}
 		}

@@ -48,9 +48,7 @@
         <serverdata>
           <mappings>
             <mapping deploy="/public_html/admin" local="$PROJECT_DIR$" web="/admin" />
-            <mapping deploy="/public_html/donor" local="$PROJECT_DIR$" web="/donor" />
-            <mapping deploy="/public_html/executor" local="$PROJECT_DIR$" web="/executor" />
-            <mapping deploy="/public_html/aiypwzqp" local="$PROJECT_DIR$" web="/aiypwzqp" />
+            <mapping deploy="/public_html/" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>

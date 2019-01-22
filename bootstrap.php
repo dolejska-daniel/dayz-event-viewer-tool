@@ -22,9 +22,17 @@ require_once __DIR__ . '/vendor/koraktor/steam-condenser/lib/steam-condenser.php
 // CONSTANT DEFINITIONS
 //=============================================================dd==
 
-define('WEBROOT', realpath(__DIR__));
-define('CACHEDIR', realpath(WEBROOT . "/cache"));
-define('TEMPLATEDIR', realpath(WEBROOT . "/app/templates"));
+if (!defined('WEBROOT'))
+	define('WEBROOT', realpath(__DIR__));
+
+if (!defined('CFGDIR'))
+	define('CFGDIR', realpath(WEBROOT . "/config"));
+
+if (!defined('CACHEDIR'))
+	define('CACHEDIR', realpath(WEBROOT . "/cache"));
+
+if (!defined('TEMPLATEDIR'))
+	define('TEMPLATEDIR', realpath(WEBROOT . "/app/templates"));
 
 
 //=============================================================dd==
@@ -33,11 +41,11 @@ define('TEMPLATEDIR', realpath(WEBROOT . "/app/templates"));
 
 // System configuration file
 /** @var ArrayHash $service */
-$service = ArrayHash::from(Neon::decode(file_get_contents(__DIR__ . "/config/service.neon")));
+$service = ArrayHash::from(Neon::decode(file_get_contents(CFGDIR . "/service.neon")));
 
 // Map configuration file
 /** @var ArrayHash $map */
-$map = ArrayHash::from(Neon::decode(file_get_contents(__DIR__ . "/config/map.neon")));
+$map = ArrayHash::from(Neon::decode(file_get_contents(CFGDIR . "/map.neon")));
 // String array key fix
 foreach ($map->baseLayers as $layer)
 {

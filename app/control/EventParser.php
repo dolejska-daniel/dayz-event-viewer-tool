@@ -151,7 +151,7 @@ class EventParser
 				if ($steamAccount->id)
 				{
 					// User is logged in
-					if ($event['event_data']['steamid64'] != $steamAccount->id)
+					if (@$event['event_data']['steamid64'] != $steamAccount->id)
 						unset($events[$eventId]);
 				}
 			}
