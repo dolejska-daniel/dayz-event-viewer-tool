@@ -39,6 +39,10 @@ class EventParser
 
 		foreach ($matches[0] as $eventId => $eventEntry)
 		{
+			// Necessary due to in-game bug
+			if (!mb_check_encoding($eventEntry, 'UTF-8'))
+				continue;
+
 			$timestamp = $matches['timestamp'][$eventId];
 			$type = $matches['event'][$eventId];
 
@@ -49,20 +53,8 @@ class EventParser
 			$attrWhitelist = array_flip((array)$this->serviceConfig->limits->attributes->whitelist);
 			$attrBlacklist = array_flip((array)$this->serviceConfig->limits->attributes->blacklist);
 
-			$skipEvent = false;
 			foreach ($attrs as $key => $value)
 			{
-				// Necessary due to in-game bug
-				if (!mb_check_encoding($value, 'UTF-8'))
-				{
-					$skipEvent = true;
-					break;
-					/*
-					$attrs[$key] = "#MALFORMED#";
-					continue;
-					*/
-				}
-
 				// Create array of group keys
 				$key_array = explode($this->serviceConfig->regex->attribute_group_delimiter, $key);
 				$key_real = end($key_array);
@@ -114,8 +106,6 @@ class EventParser
 					unset($attrs[$key]);
 				}
 			}
-			if ($skipEvent)
-				continue;
 
 			$event = [
 				'event_time' => (int)$timestamp,
