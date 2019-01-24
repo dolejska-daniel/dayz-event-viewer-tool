@@ -671,33 +671,7 @@
 				});
 
 				{if $service->limits->tooltips->enabled}
-				var tooltipContent = "";
-				{if $service->limits->tooltips->datetime}
-				{* datetime *}
-				tooltipContent+= e.event_data.datetime;
-				{/if}
-				{if $service->limits->tooltips->name}
-				{if $service->limits->tooltips->datetime}
-				{* datetime and name separator *}
-				tooltipContent+= ": ";
-				{/if}
-				{* name *}
-				if (e.event_type === "KILLED_BY_PLAYER" && e.event_data.killer.name)
-				{
-					if (e.event_data.killer.hands)
-					{
-						tooltipContent+= "<b>" + e.event_data.name + "</b> <small>was killed by</small> <b>" + e.event_data.killer.name + "</b> <small>with</small> " + e.event_data.killer.hands;
-					}
-					else
-					{
-						tooltipContent+= "<b>" + e.event_data.name + "</b> <small>was killed by</small> <b>" + e.event_data.killer.name + "</b>";
-					}
-				}
-				else
-				{
-					tooltipContent+= "<b>" + e.event_data.name + "</b>";
-				}
-				{/if}
+				var tooltipContent = e.event_tooltip;
 				marker.bindTooltip(tooltipContent);
 				{/if}
 

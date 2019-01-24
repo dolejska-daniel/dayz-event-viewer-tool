@@ -79,10 +79,14 @@ steam:
 # Regular expressions for log parsing and formatting
 regex:
 	# Single log entry after preprocess routines.
+	# Requires three arrays in matches: 'timestamp', 'event' and 'attrs'.
 	log_entry: '/(?<timestamp>[0-9]{10}) \| \[DAYZ-SA\] (?<event>[A-Z\_]+):(?<attrs>.+)/'
 	# Log entry attribute.
 	# Requires two arrays in matches: 'keys' and 'values'.
 	attribute_entry: '/(\s(?<keys>[\_a-z0-9]+)=\"(?<values>.*?)\")/'
+	# Tooltip variable.
+	# Requires one array in matches: 'variable'.
+	tooltip_variables: '/{(?<variable>.+?)}/'
 	# Attribute group delimiter string. Converts 'group1_group2_key' key to object:
 	# { group1: { group2: { key: value } } }
 	attribute_group_delimiter: '_'
@@ -138,10 +142,6 @@ limits:
 	tooltips:
 		# Should event tooltips be available?
 		enabled: yes
-		# Should date and time be displayed in the tooltips?
-		datetime: yes
-		# Should name be displayed in the tooltips?
-		name: yes
 	# Backend limits
 	events:
 		# List of event types allowed to be displayed
@@ -191,11 +191,50 @@ behaviour:
 	# if today: null
 	# if time: {INTERVAL (5 hours, 2 days, ...)}
 	logSelection: null
+	# Tooltip settings
+	tooltips:
+		# Default tooltip
+		default: '<b>{name}</b>'
+		# Tooltip prefix
+		prefix: '<small>{datetime}:</small> '
 	# Maximum amount of time to keep cached logs valid.
 	cacheInterval: 6 hours
 	# Array of regular expressions which will force matching log files not to be cached.
 	dontCache:
 		- '/DayZServer_x64.ADM/'
+
+# Additional event settings
+events:
+	KILLED_BY_PLAYER:
+		tooltip: '<b>{name}</b> <small>was killed by</small> <b>{killer.name}</b> <small>with</small> {killer.hands}'
+	KILLED_PLAYER:
+		tooltip: '<b>{name}</b> <small>killed</small> <b>{victim.name}</b> <small>with</small> {hands}'
+	KILLED_BY_CAR:
+		tooltip: '<b>{name}</b> <small>was ran over by a car</small>'
+	KILLED_BY_LANDMINETRAP:
+		tooltip: '<b>{name}</b> <small>was killed by landmine</small>'
+	KILLED_BY_ZOMBIE:
+		tooltip: '<b>{name}</b> <small>was killed by zombie</small>'
+	SUICIDE:
+		tooltip: '<b>{name}</b> <small>commited suicide</small>'
+	TRAP_ACTIVATED:
+		tooltip: '<b>{name}</b> <small>activated a trap</small>'
+	PLACED:
+		tooltip: '<b>{name}</b> <small>placed</small> <b>{item}</b> <small>on the ground</small>'
+	VEHICLE_ENTER:
+		tooltip: '<b>{name}</b> <small>entered vehicle</small>'
+	VEHICLE_LEFT:
+		tooltip: '<b>{name}</b> <small>entered vehicle</small>'
+	VEHICLE_DRIVER_ENTER:
+		tooltip: '<b>{name}</b> <small>entered vehicle as driver</small>'
+	VEHICLE_DRIVER_LEFT:
+		tooltip: '<b>{name}</b> <small>left vehicle as driver</small>'
+	PLAYER_POSITION:
+		tooltip: null
+	CONNECTED:
+		tooltip: '<b>{name}</b> <small>has connected</small>'
+	DISCONNECTED:
+		tooltip: '<b>{name}</b> <small>has disconnected</small>'
 
 # Application's endpoint specification
 endpoints:

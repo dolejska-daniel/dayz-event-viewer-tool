@@ -43,6 +43,17 @@ class EventParser
 			if (!mb_check_encoding($eventEntry, 'UTF-8'))
 				continue;
 
+			$event = [
+				'event_time'    => null,
+				'event_type'    => null,
+				'event_data'    => [],
+				'event_tooltip' => null,
+			];
+			if ($this->serviceConfig->debug)
+			{
+				$event['debug']['match'] = $eventEntry;
+			}
+
 			$timestamp = $matches['timestamp'][$eventId];
 			$type = $matches['event'][$eventId];
 
@@ -107,17 +118,12 @@ class EventParser
 				}
 			}
 
-			$event = [
-				'event_time' => (int)$timestamp,
-				'event_type' => $type,
-				'event_data' => $attrs,
-			];
-			if ($this->serviceConfig->debug)
-			{
-				$event['debug']['match'] = $eventEntry;
-			}
 
+			$event['event_time'] = (int)$timestamp;
+			$event['event_type'] = $type;
+			$event['event_data'] = $attrs;
 			$this->postprocessEvent($events, $event);
+			$this->processEventTooltip($event);
 			$events[] = $event;
 		}
 
@@ -175,11 +181,66 @@ class EventParser
 			if (isset($event['event_data']['hands']))
 				$data['victim']['hands'] = $event['event_data']['hands'];
 
-			$events[] = [
+			$newEvent = [
 				'event_time' => $event['event_time'],
 				'event_type' => 'KILLED_PLAYER',
 				'event_data' => $data,
 			];
+			$this->processEventTooltip($newEvent);
+			$events[] = $newEvent;
 		}
+	}
+
+	protected function processEventTooltip(&$event )
+	{
+		$tooltip = null;
+		$eventConfig = @$this->serviceConfig->events[$event['event_type']];
+		if (!$eventConfig)
+			$tooltip = null;
+
+		$tooltip = $eventConfig->tooltip;
+		if (!$tooltip)
+			$tooltip = $this->serviceConfig->behaviour->tooltips->default;
+
+		if ($this->serviceConfig->limits->tooltips->enabled
+			&& $tooltip)
+		{
+			if ($this->serviceConfig->behaviour->tooltips->prefix)
+				$tooltip = $this->serviceConfig->behaviour->tooltips->prefix . $tooltip;
+
+			$patterns = [];
+			$replacements = [];
+			preg_match_all($this->serviceConfig->regex->tooltip_variables, $tooltip, $tooltipMatches);
+
+			foreach ($tooltipMatches['variable'] as $var)
+			{
+				$var_keys = explode('.', $var);
+				$x = self::getValueByKeyArray($event['event_data'], $var_keys);
+
+				$patterns[] = '/{' . $var . '}/';
+				$replacements[] = $x;
+			}
+			if ($this->serviceConfig->debug)
+			{
+				$event['debug']['tooltip']['source'] = $tooltip;
+				$event['debug']['tooltip']['match'] = $tooltipMatches['variable'];
+				$event['debug']['tooltip']['pattern'] = $patterns;
+				$event['debug']['tooltip']['replacement'] = $replacements;
+			}
+			$tooltip = preg_replace($patterns, $replacements, $tooltip, 1);
+		}
+		$event['event_tooltip'] = $tooltip;
+	}
+
+	static function getValueByKeyArray( $array, $keys, $index = 0 )
+	{
+		if (isset($array[$keys[$index]]))
+		{
+			if ($index == count($keys) - 1)
+				return $array[$keys[$index]];
+
+			return self::getValueByKeyArray($array[$keys[$index]], $keys, $index + 1);
+		}
+		return null;
 	}
 }
