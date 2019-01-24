@@ -99,13 +99,15 @@
 					</button>
 				</div>
 			</div>
-			<div class="leaflet-control leaflet-control-custom rounded" n:if="$service->limits->extensions->visuals">
-				<div class="custom-control custom-checkbox">
+			<div class="leaflet-control leaflet-control-custom rounded" n:if="
+					$service->limits->extensions->visuals->connectEvents
+					|| $service->limits->extensions->visuals->additionalEventData">
+				<div class="custom-control custom-checkbox" n:if="$service->limits->extensions->visuals->connectEvents">
 					<input type="checkbox" class="custom-control-input" id="connectEvents" value="1"
 					       onchange="displayEvents(); setUrlParam('connect_events', $('#connectEvents:checked').val());" {if @$_GET['connect_events'] == 1}checked{/if}>
 					<label class="custom-control-label" for="connectEvents">Visually connect player events</label>
 				</div>
-				<div class="custom-control custom-checkbox">
+				<div class="custom-control custom-checkbox" n:if="$service->limits->extensions->visuals->additionalEventData">
 					<input type="checkbox" class="custom-control-input" id="visualizeAdditionalData" value="1"
 					       onchange="displayEvents(); setUrlParam('visualize_additional_data', $('#visualizeAdditionalData:checked').val());" {if @$_GET['visualize_additional_data'] == 1}checked{/if}>
 					<label class="custom-control-label" for="visualizeAdditionalData">Visualize additional event data</label>
@@ -401,24 +403,35 @@
 		function loadLogfiles() {
 			$.get({$service->endpoints->logs}, { server: server }).done(function (data) {
 				var logs = JSON.parse(data);
-				var $group = $( "#log-group" ).attr("label", logs.server.name).html("");
-				for (var fileid in logs.files)
+				if (logs.error)
 				{
-					if (!logs.files.hasOwnProperty(fileid))
-						continue;
-
-					var file = logs.files[fileid];
-					$group.append($("<option>").attr("value", fileid).text(file));
+					showStatusMessage("Failed to load logfiles (message: '" + logs.message + "')", 15000);
+					return;
 				}
-				var $log = $( "#log" ).removeAttr("disabled");
-				$log.val(log);
-				if ($log.val() == null)
-				{
-					// Select current log if no other log has been selected
-					$log.val("DayZServer_x64.ADM");
-				}
-				$log.change();
+				processLogfiles(logs);
+			}).fail(function (jqXHR, textStatus, errorThrown) {
+				showStatusMessage("Failed to load logfiles (message: '" + textStatus + "')", 15000);
 			});
+		}
+
+		function processLogfiles( logs ) {
+			var $group = $( "#log-group" ).attr("label", logs.server.name).html("");
+			for (var fileid in logs.files)
+			{
+				if (!logs.files.hasOwnProperty(fileid))
+					continue;
+
+				var file = logs.files[fileid];
+				$group.append($("<option>").attr("value", fileid).text(file));
+			}
+			var $log = $( "#log" ).removeAttr("disabled");
+			$log.val(log);
+			if ($log.val() == null)
+			{
+				// Select current log if no other log has been selected
+				$log.val("DayZServer_x64.ADM");
+			}
+			$log.change();
 		}
 
 		var zones = [];
@@ -432,31 +445,43 @@
 
 			$.get({$service->endpoints->zones}, { server: server }).done(function (data) {
 				var result = JSON.parse(data);
-				for (var zoneName in result.zones)
+				if (result.error)
 				{
-					if (!result.zones.hasOwnProperty(zoneName))
-						continue;
-
-					var z = zones[zoneName] = result.zones[zoneName];
-					var latLngs = [];
-					for (var i = 0; i < z.bounds.length; i++)
-						latLngs.push(getLatLng(z.bounds[i][0], z.bounds[i][1], 0));
-
-					var polygon = L.polygon(latLngs, z.options);
-
-					var tooltipContent = z.tooltip.content || zoneName;
-					polygon.bindTooltip(tooltipContent);
-
-					var popupContent = z.popup.content;
-					if (popupContent)
-					{
-						polygon.bindPopup(popupContent);
-					}
-
-					polygon.addTo(map);
-					zonePolygons.push(polygon);
+					showStatusMessage("Failed to load logfiles (message: '" + result.message + "')", 15000);
+					return;
 				}
+				processZones(result);
+			}).fail(function (jqXHR, textStatus, errorThrown) {
+				showStatusMessage("Failed to load map zones (message: '" + textStatus + "')", 15000);
 			});
+		}
+
+		function processZones( data )
+		{
+			for (var zoneName in data.zones)
+			{
+				if (!data.zones.hasOwnProperty(zoneName))
+					continue;
+
+				var z = zones[zoneName] = data.zones[zoneName];
+				var latLngs = [];
+				for (var i = 0; i < z.bounds.length; i++)
+					latLngs.push(getLatLng(z.bounds[i][0], z.bounds[i][1], 0));
+
+				var polygon = L.polygon(latLngs, z.options);
+
+				var tooltipContent = z.tooltip.content || zoneName;
+				polygon.bindTooltip(tooltipContent);
+
+				var popupContent = z.popup.content;
+				if (popupContent)
+				{
+					polygon.bindPopup(popupContent);
+				}
+
+				polygon.addTo(map);
+				zonePolygons.push(polygon);
+			}
 		}
 
 		// https://leafletjs.com/reference-1.4.0.html#control-layers
@@ -468,39 +493,56 @@
 			eventTypes = [];
 			$.get({$service->endpoints->events}, { server: server, file: log }).done(function (data) {
 				var result = JSON.parse(data);
-				events = result.events;
-				$( "#event-count" ).text(events.length);
-				$( "#event-time-from" ).text(result.time.from);
-				$( "#event-time-to" ).text(result.time.to);
-				$( "#time-from" ).removeAttr("disabled");
-				$( "#time-to" ).removeAttr("disabled");
-				$( "#steamid" ).removeAttr("disabled");
-
-				{if $service->limits->filters->type}
-				for (var i = 0; i < events.length; i++) {
-					var e = events[i];
-					eventTypes[e.event_type] = e.event_type;
-				}
-
-				var $eventTypes = $("#event-types").html("");
-				eventTypes.sort();
-				for (var eventType in eventTypes)
+				if (result.error)
 				{
-					if (!eventTypes.hasOwnProperty(eventType))
-						continue;
-					$eventTypes.append($("<option selected>").attr("value", eventType).text(eventTypes[eventType]));
+					showStatusMessage("Failed to load logfiles (message: '" + result.message + "')", 15000);
+					return;
 				}
-
-				if (event_types)
-					$eventTypes.val(event_types).change();
-				{/if}
-
-				time_from_default = result.time.first - 1;
-				time_to_default = result.time.last + 1;
-				timeFilter(result.time.filter);
-				filterEvents();
-				displayEvents();
+				processEvents(result);
+			}).fail(function (jqXHR, textStatus, errorThrown) {
+				showStatusMessage("Failed to load map events (message: '" + textStatus + "')", 15000);
 			});
+		}
+
+		function processEvents( data ) {
+			events = data.events;
+			$( "#event-count" ).text(events.length);
+			$( "#event-time-from" ).text(data.time.from);
+			$( "#event-time-to" ).text(data.time.to);
+			$( "#time-from" ).removeAttr("disabled");
+			$( "#time-to" ).removeAttr("disabled");
+			$( "#steamid" ).removeAttr("disabled");
+
+			if (events.length === 0)
+			{
+				$( "#no-events" ).modal('show');
+				return;
+			}
+
+			{if $service->limits->filters->type}
+			for (var i = 0; i < events.length; i++) {
+				var e = events[i];
+				eventTypes[e.event_type] = e.event_type;
+			}
+
+			var $eventTypes = $("#event-types").html("");
+			eventTypes.sort();
+			for (var eventType in eventTypes)
+			{
+				if (!eventTypes.hasOwnProperty(eventType))
+					continue;
+				$eventTypes.append($("<option selected>").attr("value", eventType).text(eventTypes[eventType]));
+			}
+
+			if (event_types)
+				$eventTypes.val(event_types).change();
+			{/if}
+
+			time_from_default = data.time.first - 1;
+			time_to_default = data.time.last + 1;
+			timeFilter(data.time.filter);
+			filterEvents();
+			displayEvents();
 		}
 
 		function filterEvents() {
@@ -634,7 +676,7 @@
 					markerType = markerTypes[settings.marker]
 				}
 
-				{if $service->limits->extensions->visuals}
+				{if $service->limits->extensions->visuals->connectEvents}
 				if ($("#connectEvents:checked").val()) {
 					paths__validate(e.event_data.steamid64, 'normal', {
 						color: "#000000",
@@ -651,7 +693,9 @@
 						}
 					}
 				}
+				{/if}
 
+				{if $service->limits->extensions->visuals->additionalEventData}
 				if ($("#visualizeAdditionalData:checked").val()) {
 					if (settings && settings.lineTo)
 					{
@@ -774,51 +818,61 @@
 			window.history.pushState(null, document.title, "?" + searchParams.toString());
 		}
 
+		function processServers( servers ) {
+			{if $service->limits->extensions->server}
+			for (var group in servers)
+			{
+				if (!servers.hasOwnProperty(group))
+					continue;
+
+				var g = $("<optgroup>").attr("label", group);
+				for (var s in servers[group])
+				{
+					if (!servers[group].hasOwnProperty(s))
+						continue;
+
+					g.append($("<option>").attr("value", s).text(servers[group][s]));
+				}
+			}
+			var $server = $( "#server" ).append(g);
+			if (server)
+				$server.val(server).change();
+
+			{else}
+			for (var group in servers)
+			{
+				if (!servers.hasOwnProperty(group))
+					continue;
+
+				for (var s in servers[group])
+				{
+					if (!servers[group].hasOwnProperty(s))
+						continue;
+
+					server = s;
+					{if $service->limits->extensions->log}
+					loadLogfiles();
+					{else}
+					loadZones();
+					loadEvents();
+					{/if}
+				}
+			}
+			{/if}
+		}
+
 		$(function() {
 			showStatusMessage("Loading available server list...");
 			$.get({$service->endpoints->servers}).done(function (data) {
 				var servers = JSON.parse(data);
-
-				{if $service->limits->extensions->server}
-				for (var group in servers)
+				if (servers.error)
 				{
-					if (!servers.hasOwnProperty(group))
-						continue;
-
-					var g = $("<optgroup>").attr("label", group);
-					for (var s in servers[group])
-					{
-						if (!servers[group].hasOwnProperty(s))
-							continue;
-
-						g.append($("<option>").attr("value", s).text(servers[group][s]));
-					}
+					showStatusMessage("Failed to load logfiles (message: '" + servers.message + "')", 15000);
+					return;
 				}
-				var $server = $( "#server" ).append(g);
-				if (server)
-					$server.val(server).change();
-
-				{else}
-				for (var group in servers)
-				{
-					if (!servers.hasOwnProperty(group))
-						continue;
-
-					for (var s in servers[group])
-					{
-						if (!servers[group].hasOwnProperty(s))
-							continue;
-
-						server = s;
-						{if $service->limits->extensions->log}
-						loadLogfiles();
-						{else}
-						loadZones();
-						loadEvents();
-						{/if}
-					}
-				}
-				{/if}
+				processServers(servers);
+			}).fail(function (jqXHR, textStatus, errorThrown) {
+				showStatusMessage("Failed to load server list (message: '" + textStatus + "')", 15000);
 			});
 
 			{if isset($_GET['map_x']) && isset($_GET['map_y'])}

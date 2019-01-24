@@ -176,6 +176,21 @@ if ($service->steam->login->enabled
 			break;
 		}
 	}
+
+	function overridServiceSettingsBySteamLoginSettings( $serviceSettings, $steamSettings )
+	{
+		foreach ($steamSettings as $key => $value)
+		{
+			if (in_array($key, [ 'events', 'attributes' ]))
+				continue;
+
+			if (is_object($value) || is_array($value))
+				overridServiceSettingsBySteamLoginSettings($serviceSettings[$key], $value);
+			else
+				$serviceSettings[$key] = $value;
+		}
+	}
+	overridServiceSettingsBySteamLoginSettings($service->limits, $service->steam->login->limits);
 }
 
 

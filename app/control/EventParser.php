@@ -195,39 +195,39 @@ class EventParser
 	{
 		$tooltip = null;
 		$eventConfig = @$this->serviceConfig->events[$event['event_type']];
-		if (!$eventConfig)
-			$tooltip = null;
-
-		$tooltip = $eventConfig->tooltip;
-		if (!$tooltip)
-			$tooltip = $this->serviceConfig->behaviour->tooltips->default;
-
-		if ($this->serviceConfig->limits->tooltips->enabled
-			&& $tooltip)
+		if ($eventConfig)
 		{
-			if ($this->serviceConfig->behaviour->tooltips->prefix)
-				$tooltip = $this->serviceConfig->behaviour->tooltips->prefix . $tooltip;
+			$tooltip = $eventConfig->tooltip;
+			if (!$tooltip)
+				$tooltip = $this->serviceConfig->behaviour->tooltips->default;
 
-			$patterns = [];
-			$replacements = [];
-			preg_match_all($this->serviceConfig->regex->tooltip_variables, $tooltip, $tooltipMatches);
-
-			foreach ($tooltipMatches['variable'] as $var)
+			if ($this->serviceConfig->limits->tooltips->enabled
+				&& $tooltip)
 			{
-				$var_keys = explode('.', $var);
-				$x = self::getValueByKeyArray($event['event_data'], $var_keys);
+				if ($this->serviceConfig->behaviour->tooltips->prefix)
+					$tooltip = $this->serviceConfig->behaviour->tooltips->prefix . $tooltip;
 
-				$patterns[] = '/{' . $var . '}/';
-				$replacements[] = $x;
+				$patterns = [];
+				$replacements = [];
+				preg_match_all($this->serviceConfig->regex->tooltip_variables, $tooltip, $tooltipMatches);
+
+				foreach ($tooltipMatches['variable'] as $var)
+				{
+					$var_keys = explode('.', $var);
+					$x = self::getValueByKeyArray($event['event_data'], $var_keys);
+
+					$patterns[] = '/{' . $var . '}/';
+					$replacements[] = $x;
+				}
+				if ($this->serviceConfig->debug)
+				{
+					$event['debug']['tooltip']['source'] = $tooltip;
+					$event['debug']['tooltip']['match'] = $tooltipMatches['variable'];
+					$event['debug']['tooltip']['pattern'] = $patterns;
+					$event['debug']['tooltip']['replacement'] = $replacements;
+				}
+				$tooltip = preg_replace($patterns, $replacements, $tooltip, 1);
 			}
-			if ($this->serviceConfig->debug)
-			{
-				$event['debug']['tooltip']['source'] = $tooltip;
-				$event['debug']['tooltip']['match'] = $tooltipMatches['variable'];
-				$event['debug']['tooltip']['pattern'] = $patterns;
-				$event['debug']['tooltip']['replacement'] = $replacements;
-			}
-			$tooltip = preg_replace($patterns, $replacements, $tooltip, 1);
 		}
 		$event['event_tooltip'] = $tooltip;
 	}

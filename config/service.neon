@@ -50,6 +50,14 @@ steam:
 		showOnlyPlayerEvents: yes
 		# How should map be limited while user is logged in?
 		limits:
+			# Fontend limits
+			extensions:
+				# Extended visual options shown?
+				visuals:
+					# User is able to visually connect events
+					connectEvents: no
+					# User is able to see additional event data
+					additionalEventData: no
 			# What should be done with the whitelist array?
 			# 	- union 		will be added to existing one from limits section
 			#	- intersection  only entries "in common" will be used
@@ -113,7 +121,11 @@ limits:
 	# Fontend limits
 	extensions:
 		# Extended visual options shown?
-		visuals: yes
+		visuals:
+			# User is able to visually connect events
+			connectEvents: yes
+			# User is able to see additional event data
+			additionalEventData: yes
 		# Server selection shown?
 		server: yes
 		# Log selection shown?
