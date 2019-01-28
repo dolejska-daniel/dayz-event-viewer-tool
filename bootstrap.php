@@ -235,7 +235,7 @@ elseif ($httpRequest->getQuery('action') === 'steamlogin'
 		{
 			$profile = \SteamId::create($steamid64);
 
-			$Steam->id = $profile->getId();
+			$Steam->id = $profile->getSteamId64();
 			$Steam->nickname = $profile->getNickname();
 			$Steam->avatar_icon = $profile->getIconAvatarUrl();
 			$Steam->avatar_medium = $profile->getMediumAvatarUrl();
