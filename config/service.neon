@@ -12,13 +12,13 @@ meta:
 	# Website description
 	description:
 	# Website keywords
-	keywords: 'dayz,dayz standalone,dayz-sa.cz,executor,map,interactive map,kill,feed,live,log,history'
+	keywords: 'dayz,dayz standalone,dayz-sa.cz,map,interactive map,kill,feed,live,log,history'
 	# OGP Type
 	type: website
 	# Thumbnail image
 	images:
 		# Absolute path to domain root
-		/executor/images/thumbnail.jpg:
+		/images/thumbnail.jpg:
 			type: image/jpeg
 			width: 1280
 			height: 670

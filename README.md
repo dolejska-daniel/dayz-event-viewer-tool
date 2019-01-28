@@ -4,6 +4,8 @@
 
 ## Introduction
 
+![Preview image](readme-images/Preview.png)
+
 This tool utilizes [Leaflet.js](https://leafletjs.com) library to deliver interactive event visualization parsed from server log files.
 By default it uses map data from [iZurvive](https://izurvive.com) (but you can easily provide your own).
 It can be either invaluable admin tool or public showcase of interesting events.
@@ -13,6 +15,8 @@ This can only be solved by using a mod for the server implementing required func
 
 Almost any behaviour of this tool can be configured from config files.
 Read more about them in README file located in `config` directory.
+
+![Overview image](readme-images/Overview.png)
 
 **This application is not fool-proof! Invalid configuration may cause unexpected behaviour.**
 
