@@ -16,8 +16,6 @@ This can only be solved by using a mod for the server implementing required func
 Almost any behaviour of this tool can be configured from config files.
 Read more about them in README file located in `config` directory.
 
-![Overview image](readme-images/Overview.png)
-
 **This application is not fool-proof! Invalid configuration may cause unexpected behaviour.**
 
 
