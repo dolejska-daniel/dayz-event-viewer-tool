@@ -107,6 +107,8 @@ class ServerSources
 		{
 			foreach ($servers as $serverId => $server)
 			{
+				// TODO: Implement caching for logfiel list
+
 				if ($server->webdav->enabled)
 				{
 					// WebDAV connection is enabled

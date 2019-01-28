@@ -1,0 +1,49 @@
+##
+# Server configuration file
+##
+
+server:
+	id: server
+	name: Servers Name
+	group: Default Group
+
+map:
+	zones:
+		# Zone name
+		dummy_zone:
+			tooltip:
+				# By default (if content is null), zones name will be used as tooltip. Accepts HTML.
+				content: null
+			popup:
+				# By default (if content is null), popup won't be available. Accepts HTML.
+				content: null
+			options:
+				# Available options: https://leafletjs.com/reference-1.4.0.html#polygon
+				color: blue
+			bounds:
+				- [x, y]
+				- [x, y]
+
+
+##
+# Log source configuration
+##
+
+webdav:
+	enabled: no
+	baseUri:
+	directoryPath:
+	user:
+	pass:
+
+# TODO: FTP is not supported yet
+ftp:
+	enabled: no
+	host:
+	user:
+	pass:
+
+# TODO: local FS is not supported yet
+local:
+	enabled: no
+	basePath:

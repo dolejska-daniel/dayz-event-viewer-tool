@@ -1,10 +1,33 @@
-# DayZ-SA.cz's ServerLog Map Tool
-> Version v1.1
+# [DayZ-SA.cz](https://dayz-sa.cz/)'s Event Viewer Tool
+> Version v1.2
+
+
+## Introduction
+
+This tool utilizes [Leaflet.js](https://leafletjs.com) library to deliver interactive event visualization parsed from server log files.
+By default it uses map data from [iZurvive](https://izurvive.com) (but you can easily provide your own).
+It can be either invaluable admin tool or public showcase of interesting events.
+
+However, this app does not provide all the required functionality on its own as logs provided by vanilla DayZ servers do not contain necessary information.
+This can only be solved by using a mod for the server implementing required functionality.
+
+Almost any behaviour of this tool can be configured from config files.
+Read more about them in README file located in `config` directory.
+
+**This application is not fool-proof! Invalid configuration may cause unexpected behaviour.**
 
 
 ## Installation
-1. `git clone <this-repo-url>`
-2. `composer install`
+1. `git clone <this-repo-url> dayz-map` \
+	_This step requires [Git](https://git-scm.com/) installed on your machine._ \
+	You can alternatively download this repository in an archive.
+2. `cd dayz-map`
+3. `composer install` \
+	_This step requires [Composer](https://getcomposer.org/) installed on your machine._
+4. **Configure.** \
+	Read more about configuration in this file.
+5. **Deploy.** \
+	Upload all the files to your webserver.
 
 **Warning:** It is crucial that only `www` directory and its contents are publicly accessible.
 Otherwise all configuration files (which might contain user serice credentials) will be exposed to public.
@@ -17,57 +40,9 @@ Otherwise all configuration files (which might contain user serice credentials) 
 | `app/control`    | Contains application source files allowing log access, and event processing.
 | `app/templates`  | Location of `Latte` template files.
 | `cache`          | Directory for both log and translated `Latte` templates cache.
-| `config`         | Application configuration files are located here. [Read more about configuration](#configuration). 
-| `config/servers` | Server configuration files are located here. [Read more about configuration](#configuration).
+| `config`         | Application configuration files are located here. 
+| `config/servers` | Server configuration files are located here.
 | `www`            | Publicly accessible files - map access and important application endpoints.
 
 You should not have need to edit anything other than documented configuration files.
-Which are all located in `config` directory.
-[Read more about configuration](#configuration) below.
-
-
-## Configuration
-
-### `map.neon`
-This file contains configuration mainly for Leaflet.js library and event visuals.
-
-| Entry           | Description
-|-----------------|-------------
-| `settings`      | Default map instance settings, dimensions, …
-| `baseLayers`    | Specifications of map tiles.
-| `ovarlayLayers` | Specifications of map tile overlay layers.
-| `markers`       | Map marker type specifications (icons, colors, …).
-| `events`        | Display settings for each specified event. Marker mapping and other configuration.
-
-More details can be found inside the file.
-All the important config entries are commented and explained.
-
-### `service.neon`
-Configuration of internal application behaviour is defined in this file.
-It can be used to turn this admin interface into publicly usable display of selected events.
-
-| Entry       | Description
-|-------------|-------------
-| `debug`     | When allowed, app will provide useful debug information (somewhere).
-| `meta`      | Contains general website settings - site name, description, keywords, etc.
-| `steam`     | Allows configuration of Steam profile login.
-| `regex`     | Specifications of server log format.
-| `limits`    | Used to apply limitations to app frontend and/or backend. Allows event filtering and enabling/disabling UI elements. 
-| `behaviour` | Used for server/log selection forcing/aggregation. Aggregation configuration is not available through web UI. 
-
-### `servers/{SERVER_ID}.neon`
-Specifications of servers and log sources.
-
-#### Server & Map
-| Entry    | Description
-|----------|-------------
-| `server` | Conains basic information about server - its identifier, name and group...
-| `map`    | Primarily used to specify static zones on given server.
-
-#### Log source
-| Entry    | Description
-|----------|-------------
-| `webdav` | Configuration for WebDAV client allowing log transmission through WebDAV service.
-| `ftp`    | _Not supported yet._
-| `local`  | _Not supported yet._
-
+You can read more about configuration in README file located in `config` directory.
