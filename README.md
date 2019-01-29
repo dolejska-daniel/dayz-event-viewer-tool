@@ -19,6 +19,19 @@ Read more about them in README file located in `config` directory.
 **This application is not fool-proof! Invalid configuration may cause unexpected behaviour.**
 
 
+## Features
+- Multiple server support
+- Log aggregation support
+- Quick filters
+  - SteamID filter
+  - Time filter
+  - Event type filter
+- Log file access
+  - Local filesystem **not supported yet**
+  - FTP **not supported yet**
+  - WebDAV support
+
+
 ## Installation
 1. `git clone <this-repo-url> dayz-map` \
 	_This step requires [Git](https://git-scm.com/) installed on your machine._ \

@@ -1,13 +1,19 @@
 {
-    "name": "dolejska-daniel/dayz-sa.cz_map",
+    "name": "dolejska-daniel/dayz-event-viewer-tool",
     "description": "",
     "type": "project",
+    "license": "GPL-3.0-or-later",
     "authors": [
         {
             "name": "Daniel Dolejška",
-            "email": "dolejskad@gmail.com"
+            "email": "dolejskad@gmail.com",
+            "role": "Developer"
         }
     ],
+	"support": {
+		"issues": "https://github.com/dolejska-daniel/dayz-event-viewer-tool/issues",
+		"source": "https://github.com/dolejska-daniel/dayz-event-viewer-tool"
+	},
     "require": {
         "latte/latte": "^2.4",
         "nette/neon": "^2.4",
@@ -18,7 +24,8 @@
         "ext-mbstring": "*",
         "nette/http": "^2.4",
         "ehesp/steam-login": "^1.2",
-        "koraktor/steam-condenser": "^1.3"
+        "koraktor/steam-condenser": "^1.3",
+	    "php": "^7.0"
     },
     "autoload": {
         "psr-4": {
