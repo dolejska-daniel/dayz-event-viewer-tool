@@ -1,4 +1,5 @@
 ### Project specific
+/.idea/
 /config/servers/*.neon
 
 ### Composer template

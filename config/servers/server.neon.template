@@ -57,6 +57,8 @@ webdav:
 ftp:
 	enabled: no
 	host:
+	port:
+	directoryPath:
 	user:
 	pass:
 

@@ -88,17 +88,17 @@ steam:
 			# Backend limits
 			events:
 				# List of event types allowed to be displayed
-				whitelist:
+				whitelist: []
 				#	- CONNECTED
 				# List of event types forbidden from being displayed
-				blacklist:
+				blacklist: []
 				#	- CONNECTED
 			attributes:
 				# List of event attributes allowed to be displayed
-				whitelist:
+				whitelist: []
 				#	- steamid64
 				# List of event attributes forbidden from being displayed
-				blacklist:
+				blacklist: []
 				#	- steamid64
 
 # Regular expressions for log parsing and formatting
