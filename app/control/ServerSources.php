@@ -137,47 +137,38 @@ class ServerSources
 						'password'  => $server->webdav->pass,
 					]);
 
-					try
+					// List existing log files
+					$files = $webdavClient->propfind($server->webdav->directoryPath, array(
+						'{DAV:}displayname',
+						//'{DAV:}getcontentlength',
+					), 1);
+
+					// Reverse sorting by key
+					krsort($files);
+
+					// Process file list
+					$this->logData[$serverId]["DayZServer_x64.ADM"] = [
+						"name" => "Current",
+						"path" => "{$server->webdav->directoryPath}DayZServer_x64.ADM",
+						"datetime" => DateTime::from(strtotime("now")),
+					];
+					foreach ($files as $filepath => $fileinfo)
 					{
-						// List existing log files
-						$files = $webdavClient->propfind($server->webdav->directoryPath, array(
-							'{DAV:}displayname',
-							//'{DAV:}getcontentlength',
-						), 1);
+						if (substr($filepath, -4) !== '.ADM')
+							continue;
+						if (strpos($filepath, 'DayZServer_x64_') === false)
+							continue;
 
-						// Reverse sorting by key
-						krsort($files);
+						preg_match('/DayZServer_x64_(?<Y>[0-9]{4})_(?<m>[0-9]{2})_(?<d>[0-9]{2})_(?<H>[0-9]{2})(?<i>[0-9]{2})(?<s>[0-9]{2})(?<v>[0-9]{3}).ADM/', $filepath, $m);
+						$name = "$m[d]-$m[m]-$m[Y] $m[H]:$m[i]:$m[s].$m[v]";
+						$datetime = new DateTime("$m[Y]-$m[m]-$m[d] $m[H]:$m[i]:$m[s].$m[v]");
 
-						// Process file list
-						$this->logData[$serverId]["DayZServer_x64.ADM"] = [
-							"name" => "Current",
-							"path" => "{$server->webdav->directoryPath}DayZServer_x64.ADM",
-							"datetime" => DateTime::from(strtotime("now")),
+						// Save processed log file
+						$this->logData[$serverId][$m[0]] = [
+							"name" => $name,
+							"path" => $filepath,
+							"datetime" => $datetime,
 						];
-						foreach ($files as $filepath => $fileinfo)
-						{
-							if (substr($filepath, -4) !== '.ADM')
-								continue;
-							if (strpos($filepath, 'DayZServer_x64_') === false)
-								continue;
-
-							preg_match('/DayZServer_x64_(?<Y>[0-9]{4})_(?<m>[0-9]{2})_(?<d>[0-9]{2})_(?<H>[0-9]{2})(?<i>[0-9]{2})(?<s>[0-9]{2})(?<v>[0-9]{3}).ADM/', $filepath, $m);
-							$name = "$m[d]-$m[m]-$m[Y] $m[H]:$m[i]:$m[s].$m[v]";
-							$datetime = new DateTime("$m[Y]-$m[m]-$m[d] $m[H]:$m[i]:$m[s].$m[v]");
-
-							// Save processed log file
-							$this->logData[$serverId][$m[0]] = [
-								"name" => $name,
-								"path" => $filepath,
-								"datetime" => $datetime,
-							];
-						}
-					}
-					catch (\Exception $ex)
-					{
-						// File list failed to be obtained
-						// TODO: Log error?
-						continue;
 					}
 				}
 			}
